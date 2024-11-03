@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 8/23/20.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A component that represents a space with a specific size.
 public struct Space: Component {
@@ -29,7 +35,7 @@ public struct Space: Component {
 /// A render node that represents a space in the UI.
 public struct SpaceRenderNode: RenderNode {
     /// The view type that this render node represents.
-    public typealias View = UIView
+    public typealias View = NSUIView
 
     /// The size of the space.
     public let size: CGSize

@@ -1,9 +1,15 @@
 //  Created by Luke Zhao on 2016-02-12.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A helper protocol that provides easier access to the underlying component engine's methods
-public protocol ComponentDisplayableView: UIView {}
+public protocol ComponentDisplayableView: NSUIView {}
 
 /// Extension to provide easier access to the underlying component engine's methods
 extension ComponentDisplayableView {
@@ -21,7 +27,7 @@ extension ComponentDisplayableView {
     }
 
     /// A closure that is called after the first reload.
-    public var onFirstReload: ((UIView) -> Void)? {
+    public var onFirstReload: ((NSUIView) -> Void)? {
         get { componentEngine.onFirstReload }
         set { componentEngine.onFirstReload = newValue }
     }
@@ -32,7 +38,7 @@ extension ComponentDisplayableView {
     }
 
     /// The visible frame insets that are applied to the viewport before fetching the views from the renderNode.
-    public var visibleFrameInsets: UIEdgeInsets {
+    public var visibleFrameInsets: NSUIEdgeInsets {
         get { componentEngine.visibleFrameInsets }
         set { componentEngine.visibleFrameInsets = newValue }
     }
@@ -66,7 +72,7 @@ extension ComponentDisplayableView {
     public var hasReloaded: Bool { reloadCount > 0 }
 
     /// The views that are currently visible and being rendered by this view.
-    public var visibleViews: [UIView] {
+    public var visibleViews: [NSUIView] {
         componentEngine.visibleViews
     }
 
@@ -106,7 +112,7 @@ extension ComponentDisplayableView {
     }
 
     /// Returns the view at a given point if it exists within the visible views.
-    public func view(at point: CGPoint) -> UIView? {
+    public func view(at point: CGPoint) -> NSUIView? {
         componentEngine.view(at: point)
     }
 
@@ -116,13 +122,15 @@ extension ComponentDisplayableView {
     }
 
     /// Returns the visible view associated with a given identifier if it exists within the visible renderables.
-    public func visibleView(id: String) -> UIView? {
+    public func visibleView(id: String) -> NSUIView? {
         componentEngine.visibleView(id: id)
     }
 }
 
+#if canImport(UIKit)
+
 extension ComponentDisplayableView where Self: UIScrollView {
-    public var contentView: UIView? {
+    public var contentView: NSUIView? {
         get { componentEngine.contentView }
         set { componentEngine.contentView = newValue }
     }
@@ -131,3 +139,5 @@ extension ComponentDisplayableView where Self: UIScrollView {
         componentEngine.scrollTo(id: id, animated: animated)
     }
 }
+
+#endif

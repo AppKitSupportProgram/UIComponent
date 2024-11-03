@@ -5,7 +5,7 @@ import UIKit
 
 extension Component {
 
-    func styleColor(_ tintColor: UIColor) -> UpdateComponent<ViewWrapperComponent<UIView>> {
+    func styleColor(_ tintColor: UIColor) -> UpdateComponent<ViewWrapperComponent<NSUIView>> {
         view()
             .update {
                 $0.backgroundColor = tintColor.withAlphaComponent(0.5)
@@ -16,7 +16,7 @@ extension Component {
             }
     }
 
-    func defaultShadow() -> UpdateComponent<ViewWrapperComponent<UIView>> {
+    func defaultShadow() -> UpdateComponent<ViewWrapperComponent<NSUIView>> {
         view()
             .update {
                 $0.backgroundColor = .systemBackground

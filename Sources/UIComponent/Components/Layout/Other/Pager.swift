@@ -1,5 +1,11 @@
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A protocol that defines the properties and behaviors of a pager component.
 /// A pager is responsible for laying out a series of components in a swipeable full screen pager format.

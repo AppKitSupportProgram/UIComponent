@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 8/22/20.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 #if os(tvOS)
 extension UIFont {
@@ -54,7 +60,7 @@ public struct Text: Component {
     ///   - lineBreakMode: The line break mode to use.
     public init(
         _ text: String,
-        font: UIFont,
+        font: NSUIFont,
         numberOfLines: Int = 0,
         lineBreakMode: NSLineBreakMode = .byWordWrapping
     ) {
@@ -69,7 +75,7 @@ public struct Text: Component {
     ///   - attributedString: The `AttributedString` to display.
     ///   - numberOfLines: The maximum number of lines for the text.
     ///   - lineBreakMode: The line break mode to use.
-    @available(iOS 15, *)
+    @available(macOS 12.0, iOS 15, *)
     public init(
         attributedString: AttributedString,
         numberOfLines: Int = 0,
@@ -103,9 +109,9 @@ public struct Text: Component {
     public func layout(_ constraint: Constraint) -> TextRenderNode {
         let attributedString: NSAttributedString
         switch content {
-        case .string(let string):
+        case let .string(string):
             attributedString = NSAttributedString(string: string, attributes: [.font: font])
-        case .attributedString(let string):
+        case let .attributedString(string):
             attributedString = string
         }
         if numberOfLines != 0 || isSwiftAttributedString {
@@ -134,9 +140,11 @@ public struct Text: Component {
             )
         } else {
             // Faster route
-            let size = attributedString.boundingRect(with: constraint.maxSize,
-                                                     options: [.usesLineFragmentOrigin],
-                                                     context: nil).size
+            let size = attributedString.boundingRect(
+                with: constraint.maxSize,
+                options: [.usesLineFragmentOrigin],
+                context: nil
+            ).size
             return TextRenderNode(
                 attributedString: attributedString,
                 numberOfLines: numberOfLines,
@@ -171,6 +179,17 @@ public struct TextRenderNode: RenderNode {
         self.size = size
     }
 
+    #if canImport(AppKit) && !targetEnvironment(macCatalyst)
+    /// Updates the provided `UILabel` with the render node's properties.
+    /// - Parameter label: The `UILabel` to update with the text rendering information.
+    public func updateView(_ label: NSTextField) {
+        label.attributedStringValue = attributedString
+        label.maximumNumberOfLines = numberOfLines
+        label.lineBreakMode = lineBreakMode
+    }
+    #endif
+
+    #if canImport(UIKit)
     /// Updates the provided `UILabel` with the render node's properties.
     /// - Parameter label: The `UILabel` to update with the text rendering information.
     public func updateView(_ label: UILabel) {
@@ -178,4 +197,5 @@ public struct TextRenderNode: RenderNode {
         label.numberOfLines = numberOfLines
         label.lineBreakMode = lineBreakMode
     }
+    #endif
 }

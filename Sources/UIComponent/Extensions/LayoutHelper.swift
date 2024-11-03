@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 8/22/20.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// An enumeration to define the main axis alignment of a layout.
 public enum MainAxisAlignment: CaseIterable {

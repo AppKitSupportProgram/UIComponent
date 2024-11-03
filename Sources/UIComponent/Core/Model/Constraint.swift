@@ -1,7 +1,13 @@
 //  Created by Luke Zhao on 8/22/20.
 
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A structure representing constraints for sizing an element, with minimum and maximum size limits.
 public struct Constraint {
@@ -32,7 +38,7 @@ public struct Constraint {
     /// Returns a new constraint that is inset by the specified edge insets.
     /// - Parameter insets: The edge insets to inset the constraint by.
     /// - Returns: A new `Constraint` instance with the inset sizes.
-    public func inset(by insets: UIEdgeInsets) -> Constraint {
+    public func inset(by insets: NSUIEdgeInsets) -> Constraint {
         Constraint(
             minSize: CGSize(
                 width: max(0, minSize.width == .infinity ? .infinity : minSize.width - insets.left - insets.right),

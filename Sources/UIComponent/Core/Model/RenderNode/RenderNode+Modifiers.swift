@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 8/22/20.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A render node that store an update block to be applied to the view during reloads.
 public struct UpdateRenderNode<Content: RenderNode>: RenderNodeWrapper {
@@ -14,7 +20,7 @@ public struct UpdateRenderNode<Content: RenderNode>: RenderNodeWrapper {
     }
 
     public var shouldRenderView: Bool {
-        true // UIView has custom property. So we should render it.
+        true // NSUIView has custom property. So we should render it.
     }
 
     public func updateView(_ view: Content.View) {
@@ -35,7 +41,7 @@ public struct KeyPathUpdateRenderNode<Value, Content: RenderNode>: RenderNodeWra
     }
 
     public var shouldRenderView: Bool {
-        true // UIView has custom property. So we should render it.
+        true // NSUIView has custom property. So we should render it.
     }
 }
 
@@ -107,9 +113,9 @@ extension RenderNode {
 public struct AnimatorWrapperRenderNode<Content: RenderNode>: RenderNodeWrapper {
     public let content: Content
     var passthroughUpdate: Bool
-    var insertBlock: ((UIView, UIView, CGRect) -> Void)?
-    var updateBlock: ((UIView, UIView, CGRect) -> Void)?
-    var deleteBlock: ((UIView, UIView, @escaping () -> Void) -> Void)?
+    var insertBlock: ((NSUIView, NSUIView, CGRect) -> Void)?
+    var updateBlock: ((NSUIView, NSUIView, CGRect) -> Void)?
+    var deleteBlock: ((NSUIView, NSUIView, @escaping () -> Void) -> Void)?
     public var animator: Animator? {
         var wrapper = WrapperAnimator()
         wrapper.content = content.animator
@@ -127,21 +133,21 @@ extension RenderNode {
     ///   - passthrough: A Boolean value that determines whether the update should be passed through to the next animator.
     ///   - updateBlock: A closure that defines the animation for updating the view.
     /// - Returns: An `AnimatorWrapperRenderNode` configured with the update animation.
-    func animateUpdate(passthrough: Bool = false, _ updateBlock: @escaping ((UIView, UIView, CGRect) -> Void)) -> AnimatorWrapperRenderNode<Self> {
+    func animateUpdate(passthrough: Bool = false, _ updateBlock: @escaping ((NSUIView, NSUIView, CGRect) -> Void)) -> AnimatorWrapperRenderNode<Self> {
         AnimatorWrapperRenderNode(content: self, passthroughUpdate: passthrough, updateBlock: updateBlock)
     }
     
     /// Applies an insert animation to the render node.
     /// - Parameter insertBlock: A closure that defines the animation for inserting the view.
     /// - Returns: An `AnimatorWrapperRenderNode` configured with the insert animation.
-    func animateInsert(_ insertBlock: @escaping (UIView, UIView, CGRect) -> Void) -> AnimatorWrapperRenderNode<Self> {
+    func animateInsert(_ insertBlock: @escaping (NSUIView, NSUIView, CGRect) -> Void) -> AnimatorWrapperRenderNode<Self> {
         AnimatorWrapperRenderNode(content: self, passthroughUpdate: false, insertBlock: insertBlock)
     }
     
     /// Applies a delete animation to the render node.
     /// - Parameter deleteBlock: A closure that defines the animation for deleting the view.
     /// - Returns: An `AnimatorWrapperRenderNode` configured with the delete animation.
-    func animateDelete(_ deleteBlock: @escaping (UIView, UIView, @escaping () -> Void) -> Void) -> AnimatorWrapperRenderNode<Self> {
+    func animateDelete(_ deleteBlock: @escaping (NSUIView, NSUIView, @escaping () -> Void) -> Void) -> AnimatorWrapperRenderNode<Self> {
         AnimatorWrapperRenderNode(content: self, passthroughUpdate: false, deleteBlock: deleteBlock)
     }
 }

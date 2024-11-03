@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 8/23/20.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A component that applies fixed insets to the visible frame of its child component.
 ///
@@ -13,13 +19,13 @@ public struct VisibleFrameInsets<Content: Component>: Component {
     public let content: Content
 
     /// The fixed insets to apply to the visible frame of the content.
-    public let insets: UIEdgeInsets
+    public let insets: NSUIEdgeInsets
 
     /// Initializes a new `VisibleFrameInsetRenderNode` with the given content and insets.
     /// - Parameters:
     ///   - content: The content render node to which the insets will be applied.
     ///   - insets: The fixed insets to apply to the visible frame.
-    public init(content: Content, insets: UIEdgeInsets) {
+    public init(content: Content, insets: NSUIEdgeInsets) {
         self.content = content
         self.insets = insets
     }
@@ -41,13 +47,13 @@ public struct DynamicVisibleFrameInset<Content: Component>: Component {
     public let content: Content
 
     /// A closure that provides dynamic insets based on the given frame, used to adjust the visible frame of the content.
-    public let insetProvider: (CGRect) -> UIEdgeInsets
+    public let insetProvider: (CGRect) -> NSUIEdgeInsets
 
     /// Initializes a new `DynamicVisibleFrameInset` with the given content and inset provider.
     /// - Parameters:
     ///   - content: The content render node to which the dynamic insets will be applied.
-    ///   - insetProvider: A closure that provides a `UIEdgeInsets` value based on the given `CGRect`.
-    public init(content: Content, insetProvider: @escaping (CGRect) -> UIEdgeInsets) {
+    ///   - insetProvider: A closure that provides a `NSUIEdgeInsets` value based on the given `CGRect`.
+    public init(content: Content, insetProvider: @escaping (CGRect) -> NSUIEdgeInsets) {
         self.content = content
         self.insetProvider = insetProvider
     }
@@ -64,13 +70,13 @@ public struct VisibleFrameInsetRenderNode<Content: RenderNode>: RenderNodeWrappe
     public let content: Content
 
     /// The fixed insets to apply to the visible frame of the content.
-    public let insets: UIEdgeInsets
+    public let insets: NSUIEdgeInsets
     
     /// Initializes a new `VisibleFrameInsetRenderNode` with the given content and insets.
     /// - Parameters:
     ///   - content: The content render node to which the insets will be applied.
     ///   - insets: The fixed insets to apply to the visible frame.
-    public init(content: Content, insets: UIEdgeInsets) {
+    public init(content: Content, insets: NSUIEdgeInsets) {
         self.content = content
         self.insets = insets
     }
@@ -88,13 +94,13 @@ public struct DynamicVisibleFrameInsetRenderNode<Content: RenderNode>: RenderNod
     public let content: Content
 
     /// A closure that provides dynamic insets based on the given frame, used to adjust the visible frame of the content.
-    public let insetProvider: (CGRect) -> UIEdgeInsets
+    public let insetProvider: (CGRect) -> NSUIEdgeInsets
 
     /// Initializes a new `DynamicVisibleFrameInsetRenderNode` with the given content and inset provider.
     /// - Parameters:
     ///   - content: The content render node to which the dynamic insets will be applied.
-    ///   - insetProvider: A closure that provides a `UIEdgeInsets` value based on the given `CGRect`.
-    public init(content: Content, insetProvider: @escaping (CGRect) -> UIEdgeInsets) {
+    ///   - insetProvider: A closure that provides a `NSUIEdgeInsets` value based on the given `CGRect`.
+    public init(content: Content, insetProvider: @escaping (CGRect) -> NSUIEdgeInsets) {
         self.content = content
         self.insetProvider = insetProvider
     }

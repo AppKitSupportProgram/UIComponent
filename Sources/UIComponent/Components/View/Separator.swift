@@ -1,19 +1,25 @@
 //  Created by Luke Zhao on 8/24/20.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A `Separator` is a `ComponentBuilder` that creates a visual divider based on the specified color.
 /// The separator can be either horizontal or vertical depending on the given constraints.
 public struct Separator: ComponentBuilder {
     /// The default color of the separator.
-    public static var defaultSeparatorColor: UIColor = UIColor.separator
+    public static var defaultSeparatorColor: NSUIColor = NSUIColor.separator
 
     /// The color of the separator.
-    public let color: UIColor
+    public let color: NSUIColor
 
     /// Initializes a new separator with the specified color.
     /// - Parameter color: The color of the separator. If not specified, the default separator color is used.
-    public init(color: UIColor = Separator.defaultSeparatorColor) {
+    public init(color: NSUIColor = Separator.defaultSeparatorColor) {
         self.color = color
     }
 
@@ -24,7 +30,7 @@ public struct Separator: ComponentBuilder {
     ///
     /// - Returns: A component representing the separator.
     public func build() -> some Component {
-        ViewComponent<UIView>().backgroundColor(color)
+        ViewComponent<NSUIView>().backgroundColor(color)
             .constraint { constraint in
                 if constraint.minSize.height <= 0, constraint.maxSize.width != .infinity {
                     let size = CGSize(width: constraint.maxSize.width, height: 1 / screenScale())
@@ -41,7 +47,9 @@ public struct Separator: ComponentBuilder {
 private func screenScale() -> CGFloat {
     #if os(visionOS)
     return 2.0
-    #else
+    #elseif canImport(UIKit)
     return UIScreen.main.scale
+    #elseif canImport(AppKit)
+    return NSScreen.main?.backingScaleFactor ?? 1
     #endif
 }

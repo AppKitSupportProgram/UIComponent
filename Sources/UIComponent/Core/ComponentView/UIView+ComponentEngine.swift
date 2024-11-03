@@ -1,13 +1,19 @@
 //
-//  UIView+ComponentEngine.swift
+//  NSUIView+ComponentEngine.swift
 //
 //
 //  Created by Luke Zhao on 7/17/24.
 //
 
-import UIKit
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
 
-extension UIView {
+#if canImport(UIKit)
+import UIKit
+#endif
+
+extension NSUIView {
     // Access to the underlying Component Engine
     public var componentEngine: ComponentEngine {
         get {
@@ -15,11 +21,16 @@ extension UIView {
                 return componentEngine
             }
             let componentEngine = ComponentEngine(view: self)
-            _ = UIView.swizzle_setBounds
-            _ = UIView.swizzle_layoutSubviews
-            _ = UIView.swizzle_sizeThatFits
+            _ = NSUIView.swizzle_setBounds
+#if canImport(UIKit)
+            _ = NSUIView.swizzle_layoutSubviews
+            _ = NSUIView.swizzle_sizeThatFits
+            
+            
             _ = UIScrollView.swizzle_safeAreaInsetsDidChange
             _ = UIScrollView.swizzle_setContentInset
+            
+#endif
             _componentEngine = componentEngine
             return componentEngine
         }
@@ -31,7 +42,7 @@ private struct AssociatedKeys {
     static var onFirstReload: Void?
 }
 
-extension UIView {
+extension NSUIView {
     fileprivate var _componentEngine: ComponentEngine? {
         get {
             objc_getAssociatedObject(self, &AssociatedKeys.componentEngine) as? ComponentEngine
@@ -46,9 +57,11 @@ extension UIView {
         }
     }
 
+#if canImport(UIKit)
+    
     static let swizzle_sizeThatFits: Void = {
-        guard let originalMethod = class_getInstanceMethod(UIView.self, #selector(sizeThatFits(_:))),
-              let swizzledMethod = class_getInstanceMethod(UIView.self, #selector(swizzled_sizeThatFits(_:)))
+        guard let originalMethod = class_getInstanceMethod(NSUIView.self, #selector(sizeThatFits(_:))),
+              let swizzledMethod = class_getInstanceMethod(NSUIView.self, #selector(swizzled_sizeThatFits(_:)))
         else { return }
         method_exchangeImplementations(originalMethod, swizzledMethod)
     }()
@@ -56,10 +69,9 @@ extension UIView {
     @objc func swizzled_sizeThatFits(_ size: CGSize) -> CGSize {
         _componentEngine?.sizeThatFits(size) ?? swizzled_sizeThatFits(size)
     }
-
     static let swizzle_layoutSubviews: Void = {
-        guard let originalMethod = class_getInstanceMethod(UIView.self, #selector(layoutSubviews)),
-              let swizzledMethod = class_getInstanceMethod(UIView.self, #selector(swizzled_layoutSubviews))
+        guard let originalMethod = class_getInstanceMethod(NSUIView.self, #selector(layoutSubviews)),
+              let swizzledMethod = class_getInstanceMethod(NSUIView.self, #selector(swizzled_layoutSubviews))
         else { return }
         method_exchangeImplementations(originalMethod, swizzledMethod)
     }()
@@ -68,10 +80,13 @@ extension UIView {
         swizzled_layoutSubviews()
         _componentEngine?.layoutSubview()
     }
+#endif
+
+    
 
     static let swizzle_setBounds: Void = {
-        guard let originalMethod = class_getInstanceMethod(UIView.self, #selector(setter: bounds)),
-              let swizzledMethod = class_getInstanceMethod(UIView.self, #selector(swizzled_setBounds(_:)))
+        guard let originalMethod = class_getInstanceMethod(NSUIView.self, #selector(setter: bounds)),
+              let swizzledMethod = class_getInstanceMethod(NSUIView.self, #selector(swizzled_setBounds(_:)))
         else { return }
         method_exchangeImplementations(originalMethod, swizzledMethod)
     }()
@@ -81,6 +96,8 @@ extension UIView {
         _componentEngine?.setNeedsRender()
     }
 }
+
+#if canImport(UIKit)
 
 extension UIScrollView {
     static let swizzle_safeAreaInsetsDidChange: Void = {
@@ -105,7 +122,7 @@ extension UIScrollView {
         }
     }
 
-    @objc func swizzled_setContentInset(_ contentInset: UIEdgeInsets) {
+    @objc func swizzled_setContentInset(_ contentInset: NSUIEdgeInsets) {
         // when contentOffset is at the top, and contentSize is set
         // changing contentInset will not trigger a contentOffset change
         // we manually adjust the contentOffset back to the top
@@ -126,3 +143,6 @@ extension UIScrollView {
     }
 }
 
+
+
+#endif

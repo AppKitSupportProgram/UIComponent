@@ -41,19 +41,19 @@ You can also use the following modifiers to configure custom animation without c
 Text("Animated Insert/Delete/Update")
     .animateInsert { hostingView, view, frame in
         view.alpha = 0.0
-        UIView.animate(withDuration: 0.3) {
+        NSUIView.animate(withDuration: 0.3) {
             view.alpha = 1.0
         }
     }
     .animateDelete { hostingView, view, completion in
-        UIView.animate(withDuration: 0.3) {
+        NSUIView.animate(withDuration: 0.3) {
             view.alpha = 0.0
         } completion: { _ in
             completion()
         }
     }
     .animateUpdate { hostingView, view, frame in
-        UIView.animate(withDuration: 0.3) {
+        NSUIView.animate(withDuration: 0.3) {
             view.frame = frame
         }
     }
@@ -79,13 +79,13 @@ struct FadeAnimator: Animator {
         self.duration = duration
     }
     
-    func delete(hostingView: UIView, view: UIView,
+    func delete(hostingView: NSUIView, view: NSUIView,
                                 completion: @escaping () -> Void) {
         if  // Only animate when the hostingView's component is updated, not when scrolling.
             hostingView.isReloading, 
             // only animate if the view is deleted visibly on screen. Drop the animation if the cell is not visible.
             hostingView.bounds.intersects(view.frame) {
-            UIView.animate(withDuration: duration, delay: 0, options: [.allowUserInteraction], animations: {
+            NSUIView.animate(withDuration: duration, delay: 0, options: [.allowUserInteraction], animations: {
                 view.alpha = 0
             }, completion: { _ in
                 completion()
@@ -95,7 +95,7 @@ struct FadeAnimator: Animator {
         }
     }
     
-    func insert(hostingView: UIView, view: UIView, frame: CGRect) {
+    func insert(hostingView: NSUIView, view: NSUIView, frame: CGRect) {
         view.bounds.size = frame.bounds.size
         view.center = frame.center
         if  // Only animate when the hostingView's component is updated, not when scrolling.
@@ -106,7 +106,7 @@ struct FadeAnimator: Animator {
             hostingView.bounds.intersects(frame)
         {
             view.alpha = 0
-            UIView.animate(withDuration: duration, delay: 0, options: [.allowUserInteraction], animations: {
+            NSUIView.animate(withDuration: duration, delay: 0, options: [.allowUserInteraction], animations: {
                 view.alpha = 1
             })
         }

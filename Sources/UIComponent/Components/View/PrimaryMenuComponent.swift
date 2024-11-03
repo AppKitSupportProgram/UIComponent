@@ -5,7 +5,15 @@
 //  Created by Luke Zhao on 1/19/24.
 //
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
+
+#if canImport(UIKit)
 
 /// A component that renders a ``PrimaryMenu``
 @available(iOS 14.0, *)
@@ -106,3 +114,6 @@ public extension Component {
         environment(\.primaryMenuConfig, value: primaryMenuConfig)
     }
 }
+
+
+#endif

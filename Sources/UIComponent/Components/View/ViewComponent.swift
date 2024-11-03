@@ -1,34 +1,40 @@
 //  Created by Luke Zhao on 8/23/20.
 
-import UIKit
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
 
-/// A `ViewComponent`is a Component that encapsulates a `UIView` or a generator closure that can create a `UIView`.
+#if canImport(UIKit)
+import UIKit
+#endif
+
+/// A `ViewComponent`is a Component that encapsulates a `NSUIView` or a generator closure that can create a `NSUIView`.
 /// See <doc:CustomView> for more details
-public struct ViewComponent<View: UIView>: Component {
-    /// The `UIView` instance that the component manages.
+public struct ViewComponent<View: NSUIView>: Component {
+    /// The `NSUIView` instance that the component manages.
     public let view: View?
-    /// A generator closure that can create a `UIView` instance when needed.
+    /// A generator closure that can create a `NSUIView` instance when needed.
     public let generator: (() -> View)?
     
-    /// Private initializer for the component that takes an optional `UIView` and an optional generator closure.
+    /// Private initializer for the component that takes an optional `NSUIView` and an optional generator closure.
     /// - Parameters:
-    ///   - view: An optional `UIView` instance to be managed by the component.
-    ///   - generator: An optional closure that generates a `UIView` instance.
+    ///   - view: An optional `NSUIView` instance to be managed by the component.
+    ///   - generator: An optional closure that generates a `NSUIView` instance.
     private init(view: View?, generator: (() -> View)?) {
         self.view = view
         self.generator = generator
     }
     
-    /// Public initializer that takes an optional `UIView`.
+    /// Public initializer that takes an optional `NSUIView`.
     /// If the view is not provided, the component will be initialized without a view and generator.
-    /// - Parameter view: An optional `UIView` instance to be managed by the component.
+    /// - Parameter view: An optional `NSUIView` instance to be managed by the component.
     public init(view: View? = nil) {
         self.init(view: view, generator: nil)
     }
     
     /// Public initializer that takes a generator closure and wraps it with an `@autoclosure` to delay its execution.
     /// The generator is marked as `@escaping` because it will be stored and used later.
-    /// - Parameter generator: A closure that generates a `UIView` instance, wrapped in an `@autoclosure`.
+    /// - Parameter generator: A closure that generates a `NSUIView` instance, wrapped in an `@autoclosure`.
     public init(generator: @autoclosure @escaping () -> View) {
         self.init(view: nil, generator: generator)
     }
@@ -38,17 +44,17 @@ public struct ViewComponent<View: UIView>: Component {
     /// - Parameter constraint: A `Constraint` instance that provides the maximum size that the view can take.
     /// - Returns: A `ViewRenderNode` instance that represents the layout of the view.
     public func layout(_ constraint: Constraint) -> ViewRenderNode<View> {
-        ViewRenderNode(size: (view?.sizeThatFits(constraint.maxSize) ?? .zero).bound(to: constraint), view: view, generator: generator)
+        ViewRenderNode(size: (view?._sizeThatFits(constraint.maxSize) ?? .zero).bound(to: constraint), view: view, generator: generator)
     }
 }
 
-/// A `ViewRenderNode` encapsulates the layout information for a `UIView` and its associated generator.
-public struct ViewRenderNode<View: UIView>: RenderNode {
+/// A `ViewRenderNode` encapsulates the layout information for a `NSUIView` and its associated generator.
+public struct ViewRenderNode<View: NSUIView>: RenderNode {
     /// The calculated size of the view.
     public let size: CGSize
-    /// The `UIView` instance managed by the render node.
+    /// The `NSUIView` instance managed by the render node.
     public let view: View?
-    /// A generator closure that can create a `UIView` instance when needed.
+    /// A generator closure that can create a `NSUIView` instance when needed.
     public let generator: (() -> View)?
     /// An optional identifier for the view, useful for debugging or tracking view instances.
     public var id: String? {
@@ -65,8 +71,8 @@ public struct ViewRenderNode<View: UIView>: RenderNode {
     /// Initializes a `ViewRenderNode` with a specified size, optional view, and optional generator.
     /// - Parameters:
     ///   - size: The size of the view.
-    ///   - view: An optional `UIView` instance.
-    ///   - generator: An optional closure that generates a `UIView`.
+    ///   - view: An optional `NSUIView` instance.
+    ///   - generator: An optional closure that generates a `NSUIView`.
     fileprivate init(size: CGSize, view: View?, generator: (() -> View)?) {
         self.size = size
         self.view = view
@@ -82,7 +88,7 @@ public struct ViewRenderNode<View: UIView>: RenderNode {
     /// Initializes a `ViewRenderNode` with a specified size and a view.
     /// - Parameters:
     ///   - size: The size of the view.
-    ///   - view: A `UIView` instance.
+    ///   - view: A `NSUIView` instance.
     public init(size: CGSize, view: View) {
         self.init(size: size, view: view, generator: nil)
     }
@@ -90,13 +96,13 @@ public struct ViewRenderNode<View: UIView>: RenderNode {
     /// Initializes a `ViewRenderNode` with a specified size and a generator.
     /// - Parameters:
     ///   - size: The size of the view.
-    ///   - generator: A closure that generates a `UIView`.
+    ///   - generator: A closure that generates a `NSUIView`.
     public init(size: CGSize, generator: @escaping (() -> View)) {
         self.init(size: size, view: nil, generator: generator)
     }
 
-    /// Creates and returns a `UIView` instance, either from the existing view or by using the generator.
-    /// - Returns: A `UIView` instance.
+    /// Creates and returns a `NSUIView` instance, either from the existing view or by using the generator.
+    /// - Returns: A `NSUIView` instance.
     public func makeView() -> View {
         if let view {
             return view
@@ -108,16 +114,16 @@ public struct ViewRenderNode<View: UIView>: RenderNode {
     }
 
     /// Updates the provided view with new data or state.
-    /// - Parameter view: The `UIView` instance to update.
+    /// - Parameter view: The `NSUIView` instance to update.
     public func updateView(_ view: View) {}
 }
 
-/// Extension to make `UIView` conform to `Component`, allowing it to be used within the component hierarchy.
-extension UIView: Component {
+/// Extension to make `NSUIView` conform to `Component`, allowing it to be used within the component hierarchy.
+extension NSUIView: Component {
     /// Lays out the view within the given constraints and returns a `ViewRenderNode` representing its layout.
     /// - Parameter constraint: The constraints within which the view should be laid out.
     /// - Returns: A `ViewRenderNode` representing the laid out view.
-    public func layout(_ constraint: Constraint) -> ViewRenderNode<UIView> {
-        ViewRenderNode(size: constraint.isTight ? constraint.maxSize : sizeThatFits(constraint.maxSize).bound(to: constraint), view: self)
+    public func layout(_ constraint: Constraint) -> ViewRenderNode<NSUIView> {
+        ViewRenderNode(size: constraint.isTight ? constraint.maxSize : _sizeThatFits(constraint.maxSize).bound(to: constraint), view: self)
     }
 }

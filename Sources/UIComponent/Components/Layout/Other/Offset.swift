@@ -5,7 +5,13 @@
 //  Created by Luke Zhao on 4/23/24.
 //
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// Wraps a content component and applies the specified offset to it.
 /// Instead of creating an instance directly, use the ``Component/offset(_:)`` modifier.
@@ -39,7 +45,7 @@ public struct DynamicOffset: Component {
 }
 
 public struct OffsetRenderNode: RenderNode {
-    public typealias View = UIView
+    public typealias View = NSUIView
 
     public let content: any RenderNode
     public let offset: CGPoint

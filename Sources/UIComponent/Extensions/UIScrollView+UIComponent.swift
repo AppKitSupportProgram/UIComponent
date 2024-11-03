@@ -1,6 +1,8 @@
 //  Created by Luke on 4/16/17.
 
 
+#if canImport(UIKit)
+
 import UIKit
 
 extension UIScrollView {
@@ -47,3 +49,5 @@ extension UIScrollView {
         setContentOffset(target, animated: animated)
     }
 }
+
+#endif

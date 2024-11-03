@@ -1,18 +1,24 @@
 //  Created by Luke Zhao on 8/23/20.
 
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 /// Wraps a content component and applies the specified edge insets to it.
 /// Instead of creating an instance directly, use the ``Component/inset(by:)`` modifier.
 public struct Insets: Component {
     let content: any Component
-    let insets: UIEdgeInsets
+    let insets: NSUIEdgeInsets
 
     /// Initializes a new Insets component with a content component and specific edge insets.
     /// - Parameters:
     ///   - content: The content component to apply insets to.
     ///   - insets: The edge insets to apply to the content component.
-    public init(content: any Component, insets: UIEdgeInsets) {
+    public init(content: any Component, insets: NSUIEdgeInsets) {
         self.content = content
         self.insets = insets
     }
@@ -26,13 +32,13 @@ public struct Insets: Component {
 /// Instead of creating an instance directly, use the ``Component/inset(_:)-1mpsn`` modifier.
 public struct DynamicInsets: Component {
     let content: any Component
-    let insetProvider: (Constraint) -> UIEdgeInsets
+    let insetProvider: (Constraint) -> NSUIEdgeInsets
 
     /// Initializes a new DynamicInsets component with a content component and an inset provider.
     /// - Parameters:
     ///   - content: The content component to apply dynamic insets to.
     ///   - insetProvider: A closure that provides edge insets based on the given constraints.
-    public init(content: any Component, insetProvider: @escaping (Constraint) -> UIEdgeInsets) {
+    public init(content: any Component, insetProvider: @escaping (Constraint) -> NSUIEdgeInsets) {
         self.content = content
         self.insetProvider = insetProvider
     }
@@ -46,10 +52,10 @@ public struct DynamicInsets: Component {
 /// A render node that represents a view with insets.
 /// It contains a content render node and applies the specified edge insets to it.
 struct InsetsRenderNode: RenderNode {
-    typealias View = UIView
+    typealias View = NSUIView
 
     let content: any RenderNode
-    let insets: UIEdgeInsets
+    let insets: NSUIEdgeInsets
 
     /// The size of the render node, adjusted for the insets.
     var size: CGSize {

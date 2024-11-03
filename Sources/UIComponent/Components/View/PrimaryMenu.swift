@@ -5,9 +5,15 @@
 //  Created by Luke Zhao on 11/26/22.
 //
 
-import UIKit
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
 
-#if !os(tvOS)
+#if canImport(UIKit)
+import UIKit
+#endif
+
+#if !os(tvOS) && canImport(UIKit)
 /// `PrimaryMenuConfig` defines the configuration for a `PrimaryMenu`.
 /// It provides customization options such as highlight state changes and tap actions.
 @available(iOS 14.0, *)

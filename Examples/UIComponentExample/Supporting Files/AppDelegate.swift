@@ -11,7 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         TappableViewConfig.default = TappableViewConfig { view, isHighlighted in
             let scale: CGFloat = isHighlighted ? 0.9 : 1.0
-            UIView.animate(withDuration: 0.2) {
+            NSUIView.animate(withDuration: 0.2) {
                 view.transform = .identity.scaledBy(x: scale, y: scale)
             }
         }

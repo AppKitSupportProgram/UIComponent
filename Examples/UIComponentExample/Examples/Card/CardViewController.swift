@@ -3,7 +3,7 @@
 import UIComponent
 import UIKit
 
-private class CardView: UIView {
+private class CardView: NSUIView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 22)

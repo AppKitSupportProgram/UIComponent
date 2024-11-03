@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 8/5/21.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A component produced by the ``Component/update(_:)`` modifier
 public typealias UpdateComponent<Content: Component> = ModifierComponent<Content, UpdateRenderNode<Content.R>>
@@ -237,15 +243,15 @@ extension Component {
 
     // MARK: - View wrapper modifiers
 
-    /// Wraps the component in a `UIView`.
-    /// - Returns: A `ViewWrapperComponent` that renders the component within a UIView.
-    public func view() -> ViewWrapperComponent<UIView> {
+    /// Wraps the component in a `NSUIView`.
+    /// - Returns: A `ViewWrapperComponent` that renders the component within a NSUIView.
+    public func view() -> ViewWrapperComponent<NSUIView> {
         ViewWrapperComponent(component: self)
     }
 
     /// Wraps the component in a `UIScrollView`.
     /// - Returns: A `ViewWrapperComponent` that renders the component within a `UIScrollView`.
-    public func scrollView() -> ViewWrapperComponent<UIScrollView> {
+    public func scrollView() -> ViewWrapperComponent<NSUIScrollView> {
         ViewWrapperComponent(component: self)
     }
 
@@ -356,7 +362,7 @@ extension Component {
     /// - Parameter amount: The padding amount to be applied to all edges.
     /// - Returns: A component wrapped with the specified amount of padding.
     public func inset(_ amount: CGFloat) -> some Component {
-        Insets(content: self, insets: UIEdgeInsets(top: amount, left: amount, bottom: amount, right: amount))
+        Insets(content: self, insets: NSUIEdgeInsets(top: amount, left: amount, bottom: amount, right: amount))
     }
 
     /// Applies horizontal and vertical padding to the component.
@@ -365,7 +371,7 @@ extension Component {
     ///   - v: The vertical padding amount.
     /// - Returns: A component wrapped with the specified horizontal and vertical padding.
     public func inset(h: CGFloat, v: CGFloat) -> some Component {
-        Insets(content: self, insets: UIEdgeInsets(top: v, left: h, bottom: v, right: h))
+        Insets(content: self, insets: NSUIEdgeInsets(top: v, left: h, bottom: v, right: h))
     }
 
     /// Applies vertical and horizontal padding to the component.
@@ -374,21 +380,21 @@ extension Component {
     ///   - h: The horizontal padding amount.
     /// - Returns: A component wrapped with the specified vertical and horizontal padding.
     public func inset(v: CGFloat, h: CGFloat) -> some Component {
-        Insets(content: self, insets: UIEdgeInsets(top: v, left: h, bottom: v, right: h))
+        Insets(content: self, insets: NSUIEdgeInsets(top: v, left: h, bottom: v, right: h))
     }
 
     /// Applies horizontal padding to the component.
     /// - Parameter h: The horizontal padding amount.
     /// - Returns: A component wrapped with the specified horizontal padding.
     public func inset(h: CGFloat) -> some Component {
-        Insets(content: self, insets: UIEdgeInsets(top: 0, left: h, bottom: 0, right: h))
+        Insets(content: self, insets: NSUIEdgeInsets(top: 0, left: h, bottom: 0, right: h))
     }
 
     /// Applies vertical padding to the component.
     /// - Parameter v: The vertical padding amount.
     /// - Returns: A component wrapped with the specified vertical padding.
     public func inset(v: CGFloat) -> some Component {
-        Insets(content: self, insets: UIEdgeInsets(top: v, left: 0, bottom: v, right: 0))
+        Insets(content: self, insets: NSUIEdgeInsets(top: v, left: 0, bottom: v, right: 0))
     }
 
     /// Applies padding to the component with specific values for each edge.
@@ -399,7 +405,7 @@ extension Component {
     ///   - right: The padding amount for the right edge.
     /// - Returns: A component wrapped with the specified edge padding.
     public func inset(top: CGFloat = 0, left: CGFloat = 0, bottom: CGFloat = 0, right: CGFloat = 0) -> some Component {
-        Insets(content: self, insets: UIEdgeInsets(top: top, left: left, bottom: bottom, right: right))
+        Insets(content: self, insets: NSUIEdgeInsets(top: top, left: left, bottom: bottom, right: right))
     }
 
     /// Applies padding to the component with a specific value for the top edge and uniform padding for the remaining edges.
@@ -408,7 +414,7 @@ extension Component {
     ///   - rest: The padding amount for the remaining edges.
     /// - Returns: A component wrapped with the specified padding.
     public func inset(top: CGFloat, rest: CGFloat) -> some Component {
-        Insets(content: self, insets: UIEdgeInsets(top: top, left: rest, bottom: rest, right: rest))
+        Insets(content: self, insets: NSUIEdgeInsets(top: top, left: rest, bottom: rest, right: rest))
     }
 
     /// Applies padding to the component with a specific value for the left edge and uniform padding for the remaining edges.
@@ -417,7 +423,7 @@ extension Component {
     ///   - rest: The padding amount for the remaining edges.
     /// - Returns: A component wrapped with the specified padding.
     public func inset(left: CGFloat, rest: CGFloat) -> some Component {
-        Insets(content: self, insets: UIEdgeInsets(top: rest, left: left, bottom: rest, right: rest))
+        Insets(content: self, insets: NSUIEdgeInsets(top: rest, left: left, bottom: rest, right: rest))
     }
 
     /// Applies padding to the component with a specific value for the bottom edge and uniform padding for the remaining edges.
@@ -426,7 +432,7 @@ extension Component {
     ///   - rest: The padding amount for the remaining edges.
     /// - Returns: A component wrapped with the specified padding.
     public func inset(bottom: CGFloat, rest: CGFloat) -> some Component {
-        Insets(content: self, insets: UIEdgeInsets(top: rest, left: rest, bottom: bottom, right: rest))
+        Insets(content: self, insets: NSUIEdgeInsets(top: rest, left: rest, bottom: bottom, right: rest))
     }
 
     /// Applies padding to the component with a specific value for the right edge and uniform padding for the remaining edges.
@@ -435,20 +441,20 @@ extension Component {
     ///   - rest: The padding amount for the remaining edges.
     /// - Returns: A component wrapped with the specified padding.
     public func inset(right: CGFloat, rest: CGFloat) -> some Component {
-        Insets(content: self, insets: UIEdgeInsets(top: rest, left: rest, bottom: rest, right: right))
+        Insets(content: self, insets: NSUIEdgeInsets(top: rest, left: rest, bottom: rest, right: right))
     }
 
-    /// Applies padding to the component using the specified `UIEdgeInsets`.
-    /// - Parameter insets: The `UIEdgeInsets` value to apply as padding.
+    /// Applies padding to the component using the specified `NSUIEdgeInsets`.
+    /// - Parameter insets: The `NSUIEdgeInsets` value to apply as padding.
     /// - Returns: A component wrapped with the specified padding.
-    public func inset(_ insets: UIEdgeInsets) -> some Component {
+    public func inset(_ insets: NSUIEdgeInsets) -> some Component {
         Insets(content: self, insets: insets)
     }
 
     /// Applies dynamic padding to the component based on constraints at layout time.
-    /// - Parameter insetProvider: A closure that provides `UIEdgeInsets` based on the given `Constraint`.
+    /// - Parameter insetProvider: A closure that provides `NSUIEdgeInsets` based on the given `Constraint`.
     /// - Returns: A component that dynamically adjusts its padding based on the provided insets.
-    public func inset(_ insetProvider: @escaping (Constraint) -> UIEdgeInsets) -> some Component {
+    public func inset(_ insetProvider: @escaping (Constraint) -> NSUIEdgeInsets) -> some Component {
         DynamicInsets(content: self, insetProvider: insetProvider)
     }
 
@@ -483,7 +489,7 @@ extension Component {
     /// - Parameter amount: The padding amount for all edges.
     /// - Returns: A component wrapped with the specified visible frame insets.
     public func visibleInset(_ amount: CGFloat) -> VisibleFrameInsets<Self> {
-        VisibleFrameInsets(content: self, insets: UIEdgeInsets(top: amount, left: amount, bottom: amount, right: amount))
+        VisibleFrameInsets(content: self, insets: NSUIEdgeInsets(top: amount, left: amount, bottom: amount, right: amount))
     }
 
     /// Applies visible frame insets to the component with specified horizontal and vertical padding.
@@ -492,7 +498,7 @@ extension Component {
     ///   - v: The padding amount for the vertical edges.
     /// - Returns: A component wrapped with the specified visible frame insets.
     public func visibleInset(h: CGFloat, v: CGFloat) -> VisibleFrameInsets<Self> {
-        VisibleFrameInsets(content: self, insets: UIEdgeInsets(top: v, left: h, bottom: v, right: h))
+        VisibleFrameInsets(content: self, insets: NSUIEdgeInsets(top: v, left: h, bottom: v, right: h))
     }
 
     /// Applies visible frame insets to the component with specified vertical and horizontal padding.
@@ -501,34 +507,34 @@ extension Component {
     ///   - h: The padding amount for the horizontal edges.
     /// - Returns: A component wrapped with the specified visible frame insets.
     public func visibleInset(v: CGFloat, h: CGFloat) -> VisibleFrameInsets<Self> {
-        VisibleFrameInsets(content: self, insets: UIEdgeInsets(top: v, left: h, bottom: v, right: h))
+        VisibleFrameInsets(content: self, insets: NSUIEdgeInsets(top: v, left: h, bottom: v, right: h))
     }
 
     /// Applies visible frame insets to the component with specified horizontal padding.
     /// - Parameter h: The padding amount for the horizontal edges.
     /// - Returns: A component wrapped with the specified visible frame insets.
     public func visibleInset(h: CGFloat) -> VisibleFrameInsets<Self> {
-        VisibleFrameInsets(content: self, insets: UIEdgeInsets(top: 0, left: h, bottom: 0, right: h))
+        VisibleFrameInsets(content: self, insets: NSUIEdgeInsets(top: 0, left: h, bottom: 0, right: h))
     }
 
     /// Applies visible frame insets to the component with specified vertical padding.
     /// - Parameter v: The padding amount for the vertical edges.
     /// - Returns: A component wrapped with the specified visible frame insets.
     public func visibleInset(v: CGFloat) -> VisibleFrameInsets<Self> {
-        VisibleFrameInsets(content: self, insets: UIEdgeInsets(top: v, left: 0, bottom: v, right: 0))
+        VisibleFrameInsets(content: self, insets: NSUIEdgeInsets(top: v, left: 0, bottom: v, right: 0))
     }
 
-    /// Applies visible frame insets to the component using the specified `UIEdgeInsets`.
-    /// - Parameter insets: The `UIEdgeInsets` value to apply as visible frame insets.
+    /// Applies visible frame insets to the component using the specified `NSUIEdgeInsets`.
+    /// - Parameter insets: The `NSUIEdgeInsets` value to apply as visible frame insets.
     /// - Returns: A component wrapped with the specified visible frame insets.
-    public func visibleInset(_ insets: UIEdgeInsets) -> VisibleFrameInsets<Self> {
+    public func visibleInset(_ insets: NSUIEdgeInsets) -> VisibleFrameInsets<Self> {
         VisibleFrameInsets(content: self, insets: insets)
     }
 
     /// Applies dynamic visible frame insets to the component based on constraints at layout time.
-    /// - Parameter insetProvider: A closure that provides `UIEdgeInsets` based on the given `CGRect`.
+    /// - Parameter insetProvider: A closure that provides `NSUIEdgeInsets` based on the given `CGRect`.
     /// - Returns: A component that dynamically adjusts its visible frame insets based on the provided insets.
-    public func visibleInset(_ insetProvider: @escaping (CGRect) -> UIEdgeInsets) -> DynamicVisibleFrameInset<Self> {
+    public func visibleInset(_ insetProvider: @escaping (CGRect) -> NSUIEdgeInsets) -> DynamicVisibleFrameInset<Self> {
         DynamicVisibleFrameInset(content: self, insetProvider: insetProvider)
     }
 
@@ -553,11 +559,13 @@ extension Component {
     public func roundedCorner() -> UpdateComponent<Self> {
         ModifierComponent(content: self) { node in
             node.update { view in
-                view.layer.cornerRadius = min(node.size.width, node.size.height) / 2
+                view._layer?.cornerRadius = min(node.size.width, node.size.height) / 2
             }
         }
     }
 
+#if canImport(UIKit)
+    
     // MARK: - TappableView modifiers
 
     /// Creates a tappable view component from the current component with a tap action. See ``TappableView`` for detail.
@@ -611,7 +619,11 @@ extension Component {
             onTap()
         }
     }
+    
+#endif
 }
+
+#if canImport(UIKit)
 
 // MARK: - Primary Menu modifiers
 
@@ -631,6 +643,8 @@ public extension Component {
         PrimaryMenuComponent(component: self, menuBuilder: menuBuilder)
     }
 }
+
+#endif
 
 // MARK: - Environment modifiers
 public extension Component {
@@ -695,7 +709,7 @@ extension Component {
     ///   - passthrough: A Boolean value that determines whether the animator update method will be called for the content component.
     ///   - updateBlock: A closure that is called to perform the layout update animation.
     /// - Returns: An `AnimatorWrapperComponent` containing the modified component.
-    public func animateUpdate(passthrough: Bool = false, _ updateBlock: @escaping ((UIView, UIView, CGRect) -> Void)) -> AnimatorWrapperComponent<Self> {
+    public func animateUpdate(passthrough: Bool = false, _ updateBlock: @escaping ((NSUIView, NSUIView, CGRect) -> Void)) -> AnimatorWrapperComponent<Self> {
         ModifierComponent(content: self) {
             $0.animateUpdate(passthrough: passthrough, updateBlock)
         }
@@ -704,7 +718,7 @@ extension Component {
     /// Animates the insertion of the component.
     /// - Parameter insertBlock: A closure that is called to perform the insertion animation.
     /// - Returns: An `AnimatorWrapperComponent` containing the modified component.
-    public func animateInsert(_ insertBlock: @escaping ((UIView, UIView, CGRect) -> Void)) -> AnimatorWrapperComponent<Self> {
+    public func animateInsert(_ insertBlock: @escaping ((NSUIView, NSUIView, CGRect) -> Void)) -> AnimatorWrapperComponent<Self> {
         ModifierComponent(content: self) {
             $0.animateInsert(insertBlock)
         }
@@ -713,7 +727,7 @@ extension Component {
     /// Animates the deletion of the component.
     /// - Parameter deleteBlock: A closure that is called to perform the deletion animation.
     /// - Returns: An `AnimatorWrapperComponent` containing the modified component.
-    public func animateDelete(_ deleteBlock: @escaping (UIView, UIView, @escaping () -> Void) -> Void) -> AnimatorWrapperComponent<Self> {
+    public func animateDelete(_ deleteBlock: @escaping (NSUIView, NSUIView, @escaping () -> Void) -> Void) -> AnimatorWrapperComponent<Self> {
         ModifierComponent(content: self) {
             $0.animateDelete(deleteBlock)
         }

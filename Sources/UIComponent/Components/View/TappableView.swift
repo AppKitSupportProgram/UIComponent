@@ -1,7 +1,14 @@
 //  Created by Luke Zhao on 6/8/21.
 
-import UIKit
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
+#if canImport(UIKit)
 /// TappableViewConfig is a structure that defines the configuration for a TappableView.
 /// It contains closures that can be used to customize the behavior of the view when it is tapped or highlighted.
 public struct TappableViewConfig {
@@ -68,7 +75,7 @@ public typealias TappableViewConfiguration = TappableViewConfig
 /// }.pointerStyleProvider {
 ///    UIPointerStyle(...) // return the pointer style you want to be displayed
 /// }
-open class TappableView: UIView {
+open class TappableView: NSUIView {
     /// The configuration object for the TappableView, which defines the behavior of the view when it is tapped or highlighted.
     public var config: TappableViewConfig?
 
@@ -172,7 +179,7 @@ open class TappableView: UIView {
 
     /// A closure that provides a preview view controller to be displayed when the TappableView is used in a context menu.
     /// Setting this property will add a context menu interaction if it's not already present.
-    public var previewProvider: (() -> UIViewController?)? {
+    public var previewProvider: (() -> NSUIViewController?)? {
         didSet {
             if previewProvider != nil || contextMenuProvider != nil {
                 addInteraction(contextMenuInteraction)
@@ -263,8 +270,9 @@ open class TappableView: UIView {
         onLongPress?(self, longPressGestureRecognizer)
     }
 }
+#endif
 
-#if !os(tvOS)
+#if !os(tvOS) && canImport(UIKit)
 @available(iOS 13.4, *)
 extension TappableView: UIPointerInteractionDelegate {
     public func pointerInteraction(_ interaction: UIPointerInteraction, styleFor region: UIPointerRegion) -> UIPointerStyle? {

@@ -3,7 +3,7 @@
 import UIComponent
 import UIKit
 
-class ComponentViewController: UIViewController {
+class ComponentViewController: NSUIViewController {
     let componentView = UIScrollView()
 
     override func viewDidLoad() {

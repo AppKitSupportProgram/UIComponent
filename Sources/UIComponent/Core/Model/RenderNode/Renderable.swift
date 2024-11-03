@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 8/22/20.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A `Renderable` represents an object that can be rendered within a given frame.
 /// It contains a reference to a `RenderNode` which dictates how the rendering should be done.

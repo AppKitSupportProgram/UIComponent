@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 8/6/21.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A horizontal stack component that lays out its children in a horizontal line.
 public struct HStack: Component, Stack, HorizontalLayoutProtocol {

@@ -5,7 +5,13 @@
 //  Created by Luke Zhao on 6/21/23.
 //
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A type-erased `Component`
 ///
@@ -35,13 +41,13 @@ public struct AnyComponent: Component {
     }
 }
 
-/// A type-erased `Component` that is specialized for a specific `UIView` subclass.
+/// A type-erased `Component` that is specialized for a specific `NSUIView` subclass.
 ///
 /// Instead of creating ``AnyComponentOfView`` directly, It is easier to use the ``Component/eraseToAnyComponentOfView()`` modifier to create a type-erased component.
 /// ```swift
 /// SomeComponent().eraseToAnyComponentOfView()
 /// ```
-public struct AnyComponentOfView<View: UIView>: Component {
+public struct AnyComponentOfView<View: NSUIView>: Component {
     /// The content component being type-erased.
     public let content: any Component
 

@@ -6,9 +6,9 @@ import XCTest
 import UIKit
 
 final class ReuseTests: XCTestCase {
-    var view: UIView!
+    var view: NSUIView!
     override func setUp() {
-        view = UIView()
+        view = NSUIView()
         view.frame = CGRect(x: 0, y: 0, width: 500, height: 500)
         super.setUp()
     }

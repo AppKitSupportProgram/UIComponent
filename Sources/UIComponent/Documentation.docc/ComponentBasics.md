@@ -22,7 +22,7 @@ VStack(spacing: 8, alignItems: .center) {
 
 ![](ComponentBasics)
 
-To render the ``Component`` on a view, assign the component to the ``UIView.componentEngine.component`` property. The view will automatically reload and display the UI.
+To render the ``Component`` on a view, assign the component to the ``NSUIView.componentEngine.component`` property. The view will automatically reload and display the UI.
 
 ```swift
 view.componentEngine.component = VStack(spacing: 8, alignItems: .center) {

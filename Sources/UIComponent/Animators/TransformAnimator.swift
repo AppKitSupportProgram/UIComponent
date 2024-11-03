@@ -1,6 +1,15 @@
 //  Created by Luke Zhao on 2018-12-27.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
+
+
+#if canImport(UIKit)
 
 @available(*, deprecated, renamed: "TransformAnimator")
 public typealias AnimatedReloadAnimator = TransformAnimator
@@ -30,9 +39,9 @@ public struct TransformAnimator: Animator {
         self.cascade = cascade
     }
 
-    public func delete(hostingView: UIView, view: UIView, completion: @escaping () -> Void) {
+    public func delete(hostingView: NSUIView, view: NSUIView, completion: @escaping () -> Void) {
         if hostingView.componentEngine.isReloading, hostingView.bounds.intersects(view.frame) {
-            UIView.animate(
+            NSUIView.animate(
                 withDuration: duration,
                 delay: 0,
                 usingSpringWithDamping: 0.9,
@@ -55,16 +64,16 @@ public struct TransformAnimator: Animator {
         }
     }
 
-    public func insert(hostingView: UIView, view: UIView, frame: CGRect) {
+    public func insert(hostingView: NSUIView, view: NSUIView, frame: CGRect) {
         view.bounds.size = frame.size
         view.center = frame.center
         if hostingView.componentEngine.isReloading, hostingView.componentEngine.hasReloaded, hostingView.bounds.intersects(frame) {
             let offsetTime: TimeInterval = cascade ? TimeInterval(frame.origin.distance(hostingView.bounds.origin) / 3000) : 0
-            UIView.performWithoutAnimation {
+            NSUIView.performWithoutAnimation {
                 view.layer.transform = transform
                 view.alpha = 0
             }
-            UIView.animate(
+            NSUIView.animate(
                 withDuration: duration,
                 delay: offsetTime,
                 usingSpringWithDamping: 0.9,
@@ -78,9 +87,9 @@ public struct TransformAnimator: Animator {
         }
     }
 
-    public func update(hostingView _: UIView, view: UIView, frame: CGRect) {
+    public func update(hostingView _: NSUIView, view: NSUIView, frame: CGRect) {
         if view.center != frame.center {
-            UIView.animate(
+            NSUIView.animate(
                 withDuration: duration,
                 delay: 0,
                 usingSpringWithDamping: 0.9,
@@ -93,7 +102,7 @@ public struct TransformAnimator: Animator {
             )
         }
         if view.bounds.size != frame.bounds.size {
-            UIView.animate(
+            NSUIView.animate(
                 withDuration: duration,
                 delay: 0,
                 usingSpringWithDamping: 0.9,
@@ -106,7 +115,7 @@ public struct TransformAnimator: Animator {
             )
         }
         if view.alpha != 1 || view.transform != .identity {
-            UIView.animate(
+            NSUIView.animate(
                 withDuration: duration,
                 delay: 0,
                 usingSpringWithDamping: 0.9,
@@ -121,3 +130,6 @@ public struct TransformAnimator: Animator {
         }
     }
 }
+
+
+#endif

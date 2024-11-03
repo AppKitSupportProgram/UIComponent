@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 7/18/21.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// Flow layout component, similar to ``UICollectionViewFlowLayout``. It is type aliased to ``FlexRow``
 public typealias Flow = FlexRow

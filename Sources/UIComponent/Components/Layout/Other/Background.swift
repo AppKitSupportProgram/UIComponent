@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 5/16/21.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// Renders a single `content` component with a `background` component below the content.
 /// The size of the `content` is calculated first, then the size is applied to the `background` component.

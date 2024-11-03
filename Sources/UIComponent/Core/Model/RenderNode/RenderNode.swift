@@ -1,12 +1,18 @@
 //  Created by Luke Zhao on 8/22/20.
 
-import UIKit
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
 
-/// Render nodes are responsible for storing the layout information, generating UIView for rendering, and updating UIView upon reload.
+#if canImport(UIKit)
+import UIKit
+#endif
+
+/// Render nodes are responsible for storing the layout information, generating NSUIView for rendering, and updating NSUIView upon reload.
 @dynamicMemberLookup
 public protocol RenderNode<View> {
-    /// The `UIView` class that this render node represents.
-    associatedtype View: UIView
+    /// The `NSUIView` class that this render node represents.
+    associatedtype View: NSUIView
 
     /// A Boolean value indicating whether the render node should render its own view.
     var shouldRenderView: Bool { get }
@@ -132,7 +138,7 @@ extension RenderNode {
 // MARK: - Internal methods
 
 extension RenderNode {
-    internal func _makeView() -> UIView {
+    internal func _makeView() -> NSUIView {
         switch reuseStrategy {
         case .automatic:
             return ReuseManager.shared.dequeue(identifier: defaultReuseKey, makeView())
@@ -143,7 +149,7 @@ extension RenderNode {
         }
     }
 
-    internal func _updateView(_ view: UIView) {
+    internal func _updateView(_ view: NSUIView) {
         guard let view = view as? View else { return }
         return updateView(view)
     }

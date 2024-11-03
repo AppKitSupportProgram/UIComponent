@@ -26,12 +26,12 @@ class ViewController: ComponentViewController {
 
 struct ExampleItem: ComponentBuilder {
     @Environment(\.viewController)
-    var parentViewController: UIViewController?
+    var parentViewController: NSUIViewController?
 
     let name: String
-    let viewController: () -> UIViewController
+    let viewController: () -> NSUIViewController
 
-    init(name: String, viewController: @autoclosure @escaping () -> UIViewController) {
+    init(name: String, viewController: @autoclosure @escaping () -> NSUIViewController) {
         self.name = name
         self.viewController = viewController
     }
@@ -49,7 +49,7 @@ struct ExampleItem: ComponentBuilder {
 }
 
 struct ViewControllerEnvironmentKey: EnvironmentKey {
-    static var defaultValue: UIViewController? {
+    static var defaultValue: NSUIViewController? {
         nil
     }
     static var isWeak: Bool {
@@ -58,14 +58,14 @@ struct ViewControllerEnvironmentKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-    var viewController: UIViewController? {
+    var viewController: NSUIViewController? {
         get { self[ViewControllerEnvironmentKey.self] }
         set { self[ViewControllerEnvironmentKey.self] = newValue }
     }
 }
 
 extension Component {
-    func viewController(_ viewController: UIViewController) -> some Component {
+    func viewController(_ viewController: NSUIViewController) -> some Component {
         environment(\.viewController, value: viewController)
     }
 }

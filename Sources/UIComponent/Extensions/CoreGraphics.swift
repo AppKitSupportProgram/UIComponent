@@ -1,7 +1,13 @@
 //  Created by Luke Zhao on 10/17/21.
 
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 extension CGSize {
     /// A size with infinite width and height.
@@ -41,7 +47,7 @@ extension CGSize {
         CGSize(width: left.width * right, height: left.height * right)
     }
 
-    @inlinable func inset(by insets: UIEdgeInsets) -> CGSize {
+    @inlinable func inset(by insets: NSUIEdgeInsets) -> CGSize {
         CGSize(width: width - insets.left - insets.right, height: height - insets.top - insets.bottom)
     }
 }
@@ -70,9 +76,9 @@ extension Comparable {
     }
 }
 
-extension UIEdgeInsets {
-    @inlinable static prefix func - (inset: UIEdgeInsets) -> UIEdgeInsets {
-        UIEdgeInsets(top: -inset.top, left: -inset.left, bottom: -inset.bottom, right: -inset.right)
+extension NSUIEdgeInsets {
+    @inlinable static prefix func - (inset: NSUIEdgeInsets) -> NSUIEdgeInsets {
+        NSUIEdgeInsets(top: -inset.top, left: -inset.left, bottom: -inset.bottom, right: -inset.right)
     }
 }
 

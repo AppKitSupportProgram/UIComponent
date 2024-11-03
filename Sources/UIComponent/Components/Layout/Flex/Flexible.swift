@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 8/23/20.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// Protocol defining the flexibility properties of a component.
 /// It includes properties for growing and shrinking the component

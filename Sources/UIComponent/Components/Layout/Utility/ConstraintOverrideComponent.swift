@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 8/23/20.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// An enumeration that defines different strategies for sizing elements.
 /// - `fill`: The element should expand to fill the available space.

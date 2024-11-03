@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 7/18/21.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A `FlexColumn` structures its children in a vertical column using flexbox properties. Once the column is filled, it will wrap to the next column.
 ///

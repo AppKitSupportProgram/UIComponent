@@ -1,7 +1,13 @@
 //  Created by y H on 2021/7/25.
 
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// Renders the ``content`` component with a badge (overlay) component on top.
 /// The ``Badge`` component is similar to the ``Overlay`` component. The differences between ``Badge`` and ``Overlay`` are the following:

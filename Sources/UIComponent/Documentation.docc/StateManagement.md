@@ -16,7 +16,7 @@ We recommend writing a `reloadComponent` method and update the `component` field
 struct MyViewModel {
     var count: Int = 0
 }
-class MyViewController: UIViewController {
+class MyViewController: NSUIViewController {
     var viewModel = MyViewModel() {
         didSet {
             reloadComponent()
@@ -42,8 +42,8 @@ You might be thinking that recreating the entire Component tree every time is in
 
 There are a few reasons to why this is quick to do.
 * Components are swift value types, which are super cheap to construct because they are statically created on the stack rather than on the heap.
-* Although the Component tree is recreated, UIComponent can smartly compare the old Component tree with the new one, and only applies the changes to the UIView hierarchy. This is similar to how [React's Virtual DOM](https://legacy.reactjs.org/docs/faq-internals.html) works.
-* Expensive UIViews are not created unless they become visible.
+* Although the Component tree is recreated, UIComponent can smartly compare the old Component tree with the new one, and only applies the changes to the NSUIView hierarchy. This is similar to how [React's Virtual DOM](https://legacy.reactjs.org/docs/faq-internals.html) works.
+* Expensive NSUIViews are not created unless they become visible.
 * UIComponent can also recycle the views that are no longer visible. This is similar to how the ``UITableView`` works.
 
 If you are worried about performance, there are are few optimization tricks that you can follow in <doc:PerformanceOptimization>.
@@ -53,7 +53,7 @@ If you are worried about performance, there are are few optimization tricks that
 For complex UI, sometimes you don't want to propergate every action to the top level. If this is the case, we recommend creating a custom View that manages the local state.
 
 ```swift
-class ProfileCell: UIView {
+class ProfileCell: NSUIView {
     // external state
     var profile: Profile?  {
         didSet {

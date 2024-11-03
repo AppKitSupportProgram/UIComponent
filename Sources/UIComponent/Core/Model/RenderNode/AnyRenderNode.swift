@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 1/14/24.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A type-erased wrapper for any `RenderNode`.
 public struct AnyRenderNode: RenderNode {
@@ -46,16 +52,16 @@ public struct AnyRenderNode: RenderNode {
     public func adjustVisibleFrame(frame: CGRect) -> CGRect {
         erasing.adjustVisibleFrame(frame: frame)
     }
-    public func updateView(_ view: UIView) {
+    public func updateView(_ view: NSUIView) {
         erasing._updateView(view)
     }
-    public func makeView() -> UIView {
+    public func makeView() -> NSUIView {
         erasing.makeView()
     }
 }
 
-/// A type-erased wrapper for any `RenderNode` specialized for a specific `UIView` subclass.
-public struct AnyRenderNodeOfView<View: UIView>: RenderNode {
+/// A type-erased wrapper for any `RenderNode` specialized for a specific `NSUIView` subclass.
+public struct AnyRenderNodeOfView<View: NSUIView>: RenderNode {
     /// The underlying `RenderNode` instance being type-erased.
     public let erasing: any RenderNode
     

@@ -11,7 +11,7 @@ let maxSize = CGSize(width: 100, height: CGFloat.infinity)
 
 final class UIComponentTests: XCTestCase {
     func testPerfHStackText() {
-        let view = UIView()
+        let view = NSUIView()
         measure {
             view.componentEngine.component = HStack {
                 for _ in 0..<10000 {
@@ -24,7 +24,7 @@ final class UIComponentTests: XCTestCase {
     }
 
     func testVisibleInsets() {
-        let view = UIView()
+        let view = NSUIView()
         view.componentEngine.component = VStack(spacing: 100) {
             Text(text1).size(width: 300, height: 300)
             Text(text2).size(width: 300, height: 300)
@@ -39,7 +39,7 @@ final class UIComponentTests: XCTestCase {
 
     func testOffsetVisibility() {
         // Offset shouldn't adjust visibility, it should use the original frame for visibility testing
-        let view = UIView()
+        let view = NSUIView()
         view.componentEngine.component = ZStack {
             Text(text1).size(width: 300, height: 300).offset(CGPoint(x: 0, y: 300))
         }
@@ -55,7 +55,7 @@ final class UIComponentTests: XCTestCase {
     /// Test to make sure component with fixed size are
     /// not being layouted when not visible
     func testLazyLayout() {
-        let view = UIView()
+        let view = NSUIView()
         view.componentEngine.component = VStack {
             Text(text1).size(width: 300, height: 600)
             Text(text2).size(width: 300, height: 600)
@@ -76,9 +76,9 @@ final class UIComponentTests: XCTestCase {
     }
     /// Test to make sure environment is passed down to lazy layout even when layout is performed later
     func testLazyLayoutEnvironment() {
-        let view = UIView()
-        var text1HostingView: UIView?
-        var text2HostingView: UIView?
+        let view = NSUIView()
+        var text1HostingView: NSUIView?
+        var text2HostingView: NSUIView?
         view.componentEngine.component = VStack {
             ConstraintReader { _ in
                 text1HostingView = Environment(\.hostingView).wrappedValue
@@ -100,9 +100,9 @@ final class UIComponentTests: XCTestCase {
     }
     /// Test to make sure weak environment value is correctly release even when captured by a lazy layout
     func testLazyLayoutWeakEnvironment() {
-        var view: UIView? = UIView()
+        var view: NSUIView? = NSUIView()
         weak var view2 = view
-        weak var text1HostingView: UIView?
+        weak var text1HostingView: NSUIView?
         view?.componentEngine.component = VStack {
             ConstraintReader { _ in
                 text1HostingView = Environment(\.hostingView).wrappedValue
@@ -139,7 +139,7 @@ final class UIComponentTests: XCTestCase {
         XCTAssertLessThan(fixedSizeLayoutTime * 2, rawLayoutTime)
     }
     func measureTime(_ component: () -> any Component) -> TimeInterval {
-        let view = UIView()
+        let view = NSUIView()
         let startTime = CACurrentMediaTime()
         view.componentEngine.component = component()
         view.frame = CGRect(x: 0, y: 0, width: 300, height: 600)

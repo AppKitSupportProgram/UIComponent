@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 8/29/20.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A Component that renders a list of child components base on the provided `children` and `frames` parameters.
 public struct Absolute: Component {

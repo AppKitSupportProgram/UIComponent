@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 5/3/24.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A `RenderNodeChild` represents a child node of another RenderNode
 /// It holds the child render node, its position within the parent, and its index within the parent.

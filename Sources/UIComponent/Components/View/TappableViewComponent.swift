@@ -7,6 +7,8 @@
 
 import Foundation
 
+#if canImport(UIKit)
+
 /// A component that renders a ``TappableView``
 public struct TappableViewComponent: Component {
     /// The configuration for the tappable view, obtained from the environment.
@@ -101,3 +103,6 @@ public extension Component {
         environment(\.tappableViewConfig, value: tappableViewConfig)
     }
 }
+
+
+#endif

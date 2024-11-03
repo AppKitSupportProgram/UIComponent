@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 7/29/24.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 import simd
 
 public struct VStackItemOffset: Component {

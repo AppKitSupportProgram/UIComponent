@@ -1,7 +1,13 @@
 //  Created by Luke Zhao on 2017-07-19.
 
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// `Animator` is a base class that provides default implementations for animations
 /// related to the insertion, deletion, and updating of views.
@@ -13,7 +19,7 @@ public protocol Animator {
     ///
     /// - Parameters:
     ///   - hostingView: source view that is performing the update
-    func willUpdate(hostingView: UIView)
+    func willUpdate(hostingView: NSUIView)
 
     /// Called when the component engine inserts a view into its subviews.
     ///
@@ -24,8 +30,8 @@ public protocol Animator {
     ///   - view: the view being inserted
     ///   - frame: frame provided by the layout
     func insert(
-        hostingView: UIView,
-        view: UIView,
+        hostingView: NSUIView,
+        view: NSUIView,
         frame: CGRect
     )
 
@@ -38,8 +44,8 @@ public protocol Animator {
     ///   - view: the view being deleted
     ///   - completion: call this block when finished
     func delete(
-        hostingView: UIView,
-        view: UIView,
+        hostingView: NSUIView,
+        view: NSUIView,
         completion: @escaping () -> Void
     )
 
@@ -53,8 +59,8 @@ public protocol Animator {
     ///   - view: the view being updated
     ///   - frame: frame provided by the layout
     func update(
-        hostingView: UIView,
-        view: UIView,
+        hostingView: NSUIView,
+        view: NSUIView,
         frame: CGRect
     )
 
@@ -64,28 +70,28 @@ public protocol Animator {
     ///   - hostingView: source view that host the component
     ///   - delta: changes in contentOffset
     ///   - view: the view being updated
-    func shift(hostingView: UIView, delta: CGPoint, view: UIView)
+    func shift(hostingView: NSUIView, delta: CGPoint, view: NSUIView)
 }
 
 // MARK: - Default implementation
 
 public extension Animator {
-    func willUpdate(hostingView: UIView) {}
+    func willUpdate(hostingView: NSUIView) {}
     func insert(
-        hostingView: UIView,
-        view: UIView,
+        hostingView: NSUIView,
+        view: NSUIView,
         frame: CGRect
     ) {}
     func delete(
-        hostingView: UIView,
-        view: UIView,
+        hostingView: NSUIView,
+        view: NSUIView,
         completion: @escaping () -> Void
     ) {
         completion()
     }
     func update(
-        hostingView: UIView,
-        view: UIView,
+        hostingView: NSUIView,
+        view: NSUIView,
         frame: CGRect
     ) {
         if view.bounds.size != frame.size {
@@ -95,7 +101,7 @@ public extension Animator {
             view.center = frame.center
         }
     }
-    func shift(hostingView: UIView, delta: CGPoint, view: UIView) {
+    func shift(hostingView: NSUIView, delta: CGPoint, view: NSUIView) {
         view.center += delta
     }
 }

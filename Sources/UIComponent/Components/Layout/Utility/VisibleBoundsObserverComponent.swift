@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 10/10/22.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A component that observes the visible bounds of its content.
 public struct VisibleBoundsObserverComponent<Content: Component>: Component {

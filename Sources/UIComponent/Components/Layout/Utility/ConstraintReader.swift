@@ -1,6 +1,12 @@
 //  Created by Luke Zhao on 8/25/20.
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// Read incoming constraint and pass it to a Component `builder` block. There are a few use cases.
 ///

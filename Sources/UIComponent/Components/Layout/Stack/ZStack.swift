@@ -1,7 +1,13 @@
 //  Created by Luke Zhao on 8/26/20.
 
 
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 import UIKit
+#endif
 
 /// A container view that layers its children on top of each other.
 public struct ZStack: Component {

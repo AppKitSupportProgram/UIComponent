@@ -1,8 +1,14 @@
 //  Created by Luke Zhao on 2017-07-24.
 
-import UIKit
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#endif
 
-extension UIView {
+#if canImport(UIKit)
+import UIKit
+#endif
+
+extension NSUIView {
     private struct AssociatedKeys {
         static var ckContext = "ckContext"
     }
@@ -25,7 +31,7 @@ extension UIView {
     }
 }
 
-@objc extension UIView {
+@objc extension NSUIView {
     func recycleForUIComponentReuse() {
         if let _ckContext,
             let reuseIdentifier = _ckContext.reuseIdentifier,
