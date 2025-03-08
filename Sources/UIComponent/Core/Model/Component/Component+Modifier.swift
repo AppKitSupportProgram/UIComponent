@@ -249,6 +249,13 @@ extension Component {
         ViewWrapperComponent(component: self)
     }
 
+    /// Wraps the component in a `View`.
+    /// - Parameter viewType: The type of view to use as the wrapper.
+    /// - Returns: A `ViewWrapperComponent` that renders the component within a `View`.
+    public func view<View: UIView>(as viewType: View.Type) -> ViewWrapperComponent<View> {
+        ViewWrapperComponent(component: self)
+    }
+
     /// Wraps the component in a `UIScrollView`.
     /// - Returns: A `ViewWrapperComponent` that renders the component within a `UIScrollView`.
     public func scrollView() -> ViewWrapperComponent<NSUIScrollView> {
@@ -640,6 +647,13 @@ public extension Component {
     /// - Parameter menuBuilder: A closure that returns a `UIMenu` to be displayed when tapped.
     /// - Returns: A `PrimaryMenuComponent` containing the component and displays the menu when tapped.
     func primaryMenu(_ menuBuilder: @escaping () -> UIMenu) -> PrimaryMenuComponent {
+        PrimaryMenuComponent(component: self, menuBuilder: menuBuilder)
+    }
+
+    /// Wrap the content in a component that displays the provided menu when tapped.
+    /// - Parameter menuBuilder: A closure that returns a `UIMenu` to be displayed when tapped.
+    /// - Returns: A `PrimaryMenuComponent` containing the component and displays the menu when tapped.
+    func primaryMenu(_ menuBuilder: @escaping (PrimaryMenu) -> UIMenu) -> PrimaryMenuComponent {
         PrimaryMenuComponent(component: self, menuBuilder: menuBuilder)
     }
 }
