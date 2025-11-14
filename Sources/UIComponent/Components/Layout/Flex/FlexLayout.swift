@@ -9,6 +9,12 @@ import AppKit
 import UIKit
 #endif
 
+public extension RenderNodeContextKey {
+    static let flexGrow = RenderNodeContextKey("flexGrow")
+    static let flexShrink = RenderNodeContextKey("flexShrink")
+    static let alignSelf = RenderNodeContextKey("alignSelf")
+}
+
 /// A protocol that defines the layout properties for flex layout.
 /// Used by ``FlexRow`` (``Flow``) & ``FlexColumn``
 public protocol FlexLayout: BaseLayoutProtocol {
@@ -69,7 +75,7 @@ extension FlexLayout {
             children: content()
         )
     }
-    
+
     /// Initializes a new flex layout with the given parameters and an array of children components.
     /// - Parameters:
     ///   - spacing: The space between lines and items within a line in the flex layout. Defaults to 0.
@@ -110,15 +116,15 @@ extension FlexLayout {
         // Determine the maximum size along the main and cross axis based on the given constraint.
         let mainMax = main(constraint.maxSize)
         let crossMax = cross(constraint.maxSize)
-        
+
         // Create a new constraint for children with infinite main size and maximum cross size.
         let childConstraint = Constraint(maxSize: size(main: .infinity, cross: crossMax))
-        
+
         // Layout all children with the new constraint and collect their render nodes.
         var renderNodes: [any RenderNode] = children.map {
             $0.layout(childConstraint)
         }
-        
+
         // Initialize an array to store the position of each child.
         var positions: [CGPoint] = []
 
@@ -128,17 +134,20 @@ extension FlexLayout {
         var currentLineWidth: CGFloat = 0
         var currentLineMaxHeight: CGFloat = 0
         var totalHeight: CGFloat = 0
-        
+
         // Iterate over the render nodes to calculate the size of each line.
         for renderNode in renderNodes {
-            // Check if adding the current item would exceed the max cross size and if it's not the first item in the line.
-            if currentLineWidth + cross(renderNode.size) > crossMax, currentLineItemCount != 0 {
-                // Save the current line data and reset the line variables.
+            let itemWidth = cross(renderNode.size)
+            let itemHeight = main(renderNode.size)
+
+            // Change: If not the first item, check if adding spacing and the item exceeds crossMax.
+            if currentLineItemCount > 0, currentLineWidth + interitemSpacing + itemWidth > crossMax {
+                // Save the current line data without subtracting extra spacing.
                 lineData.append(
                     (
                         lineSize: size(
                             main: currentLineMaxHeight,
-                            cross: currentLineWidth - CGFloat(currentLineItemCount) * interitemSpacing
+                            cross: currentLineWidth
                         ),
                         count: currentLineItemCount
                     )
@@ -148,19 +157,23 @@ extension FlexLayout {
                 currentLineWidth = 0
                 currentLineItemCount = 0
             }
+            // Change: Only add interitemSpacing if this is not the first item.
+            if currentLineItemCount > 0 {
+                currentLineWidth += interitemSpacing
+            }
             // Update the current line's max height and width, and increment the item count.
-            currentLineMaxHeight = max(currentLineMaxHeight, main(renderNode.size))
-            currentLineWidth += cross(renderNode.size) + interitemSpacing
+            currentLineWidth += itemWidth
+            currentLineMaxHeight = max(currentLineMaxHeight, itemHeight)
             currentLineItemCount += 1
         }
-        
+
         // Add the last line data if there are items in it.
         if currentLineItemCount > 0 {
             lineData.append(
                 (
                     lineSize: size(
                         main: currentLineMaxHeight,
-                        cross: currentLineWidth - CGFloat(currentLineItemCount) * interitemSpacing
+                        cross: currentLineWidth
                     ),
                     count: currentLineItemCount
                 )
@@ -173,7 +186,7 @@ extension FlexLayout {
             justifyContent: alignContent,
             maxPrimary: mainMax,
             totalPrimary: totalHeight,
-            minimunSpacing: lineSpacing,
+            minimumSpacing: lineSpacing,
             numberOfItems: lineData.count
         )
 
@@ -181,20 +194,23 @@ extension FlexLayout {
         var lineStartIndex = 0
         for (var lineSize, count) in lineData {
             let range = lineStartIndex..<(lineStartIndex + count)
-            
+
             // Calculate the total flex grow values for items in the current line.
-            let flexCount = children[range].reduce(0) { result, next in
-                result + ((next as? AnyFlexible)?.flexGrow ?? 0)
+            let flexCount = renderNodes[range].reduce(0) { result, next in
+                result + next.flexGrow
             }
-            
+
             // If there are flexible items and the cross max size is not infinite, adjust their sizes.
             if flexCount > 0, crossMax != .infinity {
                 let crossPerFlex = max(0, crossMax - cross(lineSize)) / flexCount
                 for index in range {
-                    let child = children[index]
-                    if let flexChild = child as? AnyFlexible {
-                        let alignChild = flexChild.alignSelf ?? alignItems
-                        let crossReserved = crossPerFlex * flexChild.flexGrow + cross(renderNodes[index].size)
+                    let childNode = renderNodes[index]
+                    let flexGrow = childNode.flexGrow
+                    let alignSelf = childNode.alignSelf
+                    if flexGrow > 0 || alignSelf != nil  {
+                        let child = children[index]
+                        let alignChild = alignSelf ?? alignItems
+                        let crossReserved = crossPerFlex * flexGrow + cross(renderNodes[index].size)
                         let constraint = Constraint(
                             minSize: size(main: (alignChild == .stretch) ? main(lineSize) : 0, cross: crossReserved),
                             maxSize: size(main: .infinity, cross: crossReserved)
@@ -205,12 +221,31 @@ extension FlexLayout {
                 lineSize = size(main: main(lineSize), cross: crossMax)
             }
 
+            // If there are baseline-aligned items, calculate its baseline
+            // and adjust the line's main size if needed.
+            var lineStartToBaselineMax: CGFloat = 0
+            var lineBaselineToEndMax: CGFloat = 0
+            for index in range {
+                let renderNode = renderNodes[index]
+                let itemAlign = renderNode.alignSelf ?? alignItems
+
+                if itemAlign == .baselineFirst || itemAlign == .baselineLast {
+                    let itemMain = main(renderNode.size)
+                    let itemBaseline = (itemAlign == .baselineFirst) ? renderNode.ascender : (itemMain + renderNode.descender)
+                    lineStartToBaselineMax = max(lineStartToBaselineMax, itemBaseline)
+                    lineBaselineToEndMax = max(lineBaselineToEndMax, itemMain - itemBaseline)
+                }
+            }
+            let lineMain = max(lineStartToBaselineMax + lineBaselineToEndMax, main(lineSize))
+            lineSize = size(main: lineMain, cross: cross(lineSize))
+            let lineBaseline = lineStartToBaselineMax
+
             // Calculate the starting offset and spacing for the cross axis based on the justifyContent property.
             var (crossOffset, crossSpacing) = LayoutHelper.distribute(
                 justifyContent: justifyContent,
                 maxPrimary: crossMax,
                 totalPrimary: cross(lineSize),
-                minimunSpacing: interitemSpacing,
+                minimumSpacing: interitemSpacing,
                 numberOfItems: count
             )
 
@@ -229,7 +264,7 @@ extension FlexLayout {
                 }
                 // Calculate the alignment value based on the alignSelf property or the default alignItems.
                 var alignValue: CGFloat = 0
-                let alignChild = (childComponent as? AnyFlexible)?.alignSelf ?? alignItems
+                let alignChild = child.alignSelf ?? alignItems
                 switch alignChild {
                 case .start, .stretch:
                     alignValue = 0
@@ -237,6 +272,10 @@ extension FlexLayout {
                     alignValue = main(lineSize) - main(child.size)
                 case .center:
                     alignValue = (main(lineSize) - main(child.size)) / 2
+                case .baselineFirst:
+                    alignValue = lineBaseline - child.ascender
+                case .baselineLast:
+                    alignValue = lineBaseline - (main(child.size) + child.descender)
                 }
                 // Set the position for the current child.
                 positions.append(point(main: mainOffset + alignValue, cross: crossOffset))
@@ -252,8 +291,21 @@ extension FlexLayout {
         let intrisicMain = mainOffset - mainSpacing
         let finalMain = alignContent != .start && mainMax != .infinity ? max(mainMax, intrisicMain) : intrisicMain
         let finalSize = size(main: finalMain, cross: crossMax)
-        
+
         // Return the render node with the final size and positions of children.
         return renderNode(size: finalSize, children: renderNodes, positions: positions)
+    }
+}
+
+
+extension RenderNode {
+    internal var flexGrow: CGFloat {
+        contextValue(.flexGrow) as? CGFloat ?? 0
+    }
+    internal var flexShrink: CGFloat {
+        contextValue(.flexShrink) as? CGFloat ?? 0
+    }
+    internal var alignSelf: CrossAxisAlignment? {
+        contextValue(.alignSelf) as? CrossAxisAlignment
     }
 }

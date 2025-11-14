@@ -17,16 +17,57 @@ extension UIFont {
 /// An enumeration that represents the content of a `Text` component.
 /// It can either be a plain `String` or an `NSAttributedString` for more complex styling.
 public enum TextContent {
-    case string(String)
+    case string(String, UIFont)
     case attributedString(NSAttributedString)
+
+    // The ascender of the text content.
+    var ascender: CGFloat {
+        switch self {
+        case .string(_, let font):
+            return font.ascender
+        case .attributedString(let string):
+            return string.ascender
+        }
+    }
+
+    // The ascender of the text content.
+    var descender: CGFloat {
+        switch self {
+        case .string(_, let font):
+            return font.descender
+        case .attributedString(let string):
+            return string.descender
+        }
+    }
+
+    func apply(to label: UILabel) {
+        switch self {
+        case .string(let string, let font):
+            label.attributedText = nil
+            label.font = font
+            label.text = string
+        case .attributedString(let string):
+            label.font = nil
+            label.text = nil
+            label.attributedText = string
+        }
+    }
 }
+
+/// A shared UILabel instance used for sizing text when `useSharedLabelForSizing` is true.
+private let layoutLabel = UILabel()
 
 /// A `Text` component represents a piece of text with styling and layout information.
 /// It can be initialized with either a plain `String` or an `NSAttributedString`.
 /// It also supports the new swift `AttributedString` from iOS 15 for more complex styling.
 public struct Text: Component {
+    /// A flag to determine if a shared UILabel should be used for sizing.
+    public static var useSharedLabelForSizing = true
+
     /// Environment-injected font used when rendering plain strings.
     @Environment(\.font) var font
+    /// Environment-injected text color used when rendering plain strings.
+    @Environment(\.textColor) var textColor
     /// The content of the text, which can be a plain string or an attributed string.
     public let content: TextContent
     /// The maximum number of lines to display the text. 0 means no limit.
@@ -46,7 +87,7 @@ public struct Text: Component {
         numberOfLines: Int = 0,
         lineBreakMode: NSLineBreakMode = .byWordWrapping
     ) {
-        self.content = .string(text)
+        self.content = .string(text, UIFont.systemFont(ofSize: UIFont.systemFontSize))
         self.numberOfLines = numberOfLines
         self.lineBreakMode = lineBreakMode
         self.isSwiftAttributedString = false
@@ -107,13 +148,39 @@ public struct Text: Component {
     /// - Parameter constraint: The constraints to use for laying out the text.
     /// - Returns: A `TextRenderNode` that represents the laid out text.
     public func layout(_ constraint: Constraint) -> TextRenderNode {
+        var content = content
+        if case .string(let string, _) = content, let envFont = font {
+            content = .string(string, envFont)
+        }
+        if Self.useSharedLabelForSizing, Thread.isMainThread {
+            // Fastest route, but not thread safe.
+            layoutLabel.numberOfLines = numberOfLines
+            layoutLabel.lineBreakMode = lineBreakMode
+            content.apply(to: layoutLabel)
+            let size = layoutLabel.sizeThatFits(constraint.maxSize)
+            return TextRenderNode(
+                content: content,
+                textColor: textColor,
+                numberOfLines: numberOfLines,
+                lineBreakMode: lineBreakMode,
+                size: size.bound(to: constraint),
+                ascender: content.ascender,
+                descender: content.descender
+            )
+        }
+
         let attributedString: NSAttributedString
         switch content {
-        case let .string(string):
-            attributedString = NSAttributedString(string: string, attributes: [.font: font])
-        case let .attributedString(string):
+        case .string(let string, let font):
+            var attributes: [NSAttributedString.Key: Any] = [.font: self.font ?? font]
+            if let color = textColor {
+                attributes[.foregroundColor] = color
+            }
+            attributedString = NSAttributedString(string: string, attributes: attributes)
+        case .attributedString(let string):
             attributedString = string
         }
+
         if numberOfLines != 0 || isSwiftAttributedString {
             // Slower route
             //
@@ -133,10 +200,13 @@ public struct Text: Component {
             layoutManager.ensureLayout(for: textContainer)
             let rect = layoutManager.usedRect(for: textContainer)
             return TextRenderNode(
-                attributedString: attributedString,
+                content: content,
+                textColor: textColor,
                 numberOfLines: numberOfLines,
                 lineBreakMode: lineBreakMode,
-                size: rect.size.bound(to: constraint)
+                size: rect.size.bound(to: constraint),
+                ascender: content.ascender,
+                descender: content.descender
             )
         } else {
             // Faster route
@@ -146,10 +216,13 @@ public struct Text: Component {
                 context: nil
             ).size
             return TextRenderNode(
-                attributedString: attributedString,
+                content: content,
+                textColor: textColor,
                 numberOfLines: numberOfLines,
                 lineBreakMode: lineBreakMode,
-                size: size.bound(to: constraint)
+                size: size.bound(to: constraint),
+                ascender: content.ascender,
+                descender: content.descender
             )
         }
     }
@@ -158,25 +231,63 @@ public struct Text: Component {
 /// A `TextRenderNode` represents a renderable text node with styling and layout information.
 public struct TextRenderNode: RenderNode {
     /// The styled text to be rendered.
-    public let attributedString: NSAttributedString
+    public let content: TextContent
+    /// The color of the text.
+    public let textColor: UIColor?
     /// The maximum number of lines to use for rendering. 0 means no limit.
     public let numberOfLines: Int
     /// The technique to use for wrapping and truncating the text.
     public let lineBreakMode: NSLineBreakMode
     /// The calculated size of the rendered text.
     public let size: CGSize
+    /// The ascender of the rendered text. Used for baseline alignment.
+    public let ascender: CGFloat
+    /// The descender of the rendered text. Used for baseline alignment.
+    public let descender: CGFloat
 
     /// Initializes a new `TextRenderNode` with the given parameters.
     /// - Parameters:
-    ///   - attributedString: The styled text to be rendered.
+    ///   - content: The styled text to be rendered.
     ///   - numberOfLines: The maximum number of lines to use for rendering.
     ///   - lineBreakMode: The technique to use for wrapping and truncating the text.
     ///   - size: The calculated size of the rendered text.
-    public init(attributedString: NSAttributedString, numberOfLines: Int, lineBreakMode: NSLineBreakMode, size: CGSize) {
-        self.attributedString = attributedString
+    ///   - ascender: The ascender of the rendered text.
+    ///   - descender: The descender of the rendered text.
+    public init(
+        content: TextContent,
+        textColor: UIColor? = nil,
+        numberOfLines: Int,
+        lineBreakMode: NSLineBreakMode,
+        size: CGSize,
+        ascender: CGFloat,
+        descender: CGFloat
+    ) {
+        self.content = content
+        self.textColor = textColor
         self.numberOfLines = numberOfLines
         self.lineBreakMode = lineBreakMode
         self.size = size
+        self.ascender = ascender
+        self.descender = descender
+    }
+
+    /// Convenience initializer for creating a `TextRenderNode` with a plain string.
+    public init(
+        attributedString: NSAttributedString,
+        numberOfLines: Int,
+        lineBreakMode: NSLineBreakMode,
+        size: CGSize,
+        ascender: CGFloat,
+        descender: CGFloat
+    ) {
+        self.init(
+            content: .attributedString(attributedString),
+            numberOfLines: numberOfLines,
+            lineBreakMode: lineBreakMode,
+            size: size,
+            ascender: ascender,
+            descender: descender
+        )
     }
 
     #if canImport(AppKit) && !targetEnvironment(macCatalyst)
@@ -193,9 +304,10 @@ public struct TextRenderNode: RenderNode {
     /// Updates the provided `UILabel` with the render node's properties.
     /// - Parameter label: The `UILabel` to update with the text rendering information.
     public func updateView(_ label: UILabel) {
-        label.attributedText = attributedString
+        label.textColor = textColor
         label.numberOfLines = numberOfLines
         label.lineBreakMode = lineBreakMode
+        content.apply(to: label)
     }
     #endif
 }

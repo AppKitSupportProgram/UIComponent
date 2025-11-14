@@ -62,6 +62,16 @@ struct InsetsRenderNode: RenderNode {
         content.size.inset(by: -insets)
     }
 
+    /// The ascender of the render node, adjusted for the top inset.
+    var ascender: CGFloat {
+        content.ascender + insets.top
+    }
+
+    /// The descender of the render node, adjusted for the bottom inset.
+    var descender: CGFloat {
+        content.descender - insets.bottom
+    }
+
     /// The content render nodes of this render node.
     var children: [any RenderNode] {
         [content]
@@ -70,5 +80,9 @@ struct InsetsRenderNode: RenderNode {
     /// The positions of the content render nodes within this render node.
     var positions: [CGPoint] {
         [CGPoint(x: insets.left, y: insets.top)]
+    }
+
+    func contextValue(_ key: RenderNodeContextKey) -> Any? {
+        content.contextValue(key)
     }
 }

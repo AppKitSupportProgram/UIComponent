@@ -38,7 +38,14 @@ public struct ViewComponent<View: NSUIView>: Component {
     public init(generator: @autoclosure @escaping () -> View) {
         self.init(view: nil, generator: generator)
     }
-    
+
+    /// Public initializer that takes a generator closure and wraps it with an `@autoclosure` to delay its execution.
+    /// The generator is marked as `@escaping` because it will be stored and used later.
+    /// - Parameter generator: A closure that generates a `UIView` instance.
+    public init(generator: @escaping () -> View) {
+        self.init(view: nil, generator: generator)
+    }
+
     /// Creates a `ViewRenderNode` using the component's view or generator.
     /// It uses the `sizeThatFits` method of the view to determine the appropriate size within the given constraints.
     /// - Parameter constraint: A `Constraint` instance that provides the maximum size that the view can take.
@@ -56,17 +63,6 @@ public struct ViewRenderNode<View: NSUIView>: RenderNode {
     public let view: View?
     /// A generator closure that can create a `NSUIView` instance when needed.
     public let generator: (() -> View)?
-    /// An optional identifier for the view, useful for debugging or tracking view instances.
-    public var id: String? {
-        if let view {
-            return "view-at-\(Unmanaged.passUnretained(view).toOpaque())"
-        }
-        return nil
-    }
-    /// The reuse strategy for the view, determining whether it should be reused or automatically managed.
-    public var reuseStrategy: ReuseStrategy {
-        view == nil ? .automatic : .noReuse
-    }
 
     /// Initializes a `ViewRenderNode` with a specified size, optional view, and optional generator.
     /// - Parameters:
@@ -116,6 +112,14 @@ public struct ViewRenderNode<View: NSUIView>: RenderNode {
     /// Updates the provided view with new data or state.
     /// - Parameter view: The `NSUIView` instance to update.
     public func updateView(_ view: View) {}
+
+    public func contextValue(_ key: RenderNodeContextKey) -> Any? {
+        guard let view else { return nil }
+        if key == .id {
+            return "view-at-\(ObjectIdentifier(view))"
+        }
+        return nil
+    }
 }
 
 /// Extension to make `NSUIView` conform to `Component`, allowing it to be used within the component hierarchy.

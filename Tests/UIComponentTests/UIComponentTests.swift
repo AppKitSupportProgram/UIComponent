@@ -4,7 +4,7 @@ import XCTest
 
 @testable import UIComponent
 
-let text1 = "This is a test of layout methods"
+let text1 = "This is a test of layout methods, performance, and correctness."
 let text2 = "This is a test of layout"
 let font = UIFont.systemFont(ofSize: 16)
 let maxSize = CGSize(width: 100, height: CGFloat.infinity)
@@ -51,100 +51,22 @@ final class UIComponentTests: XCTestCase {
         view.layoutIfNeeded()
         XCTAssertEqual(view.componentEngine.visibleRenderables.count, 0)
     }
-
-    /// Test to make sure component with fixed size are
-    /// not being layouted when not visible
-    func testLazyLayout() {
-        let view = NSUIView()
-        view.componentEngine.component = VStack {
-            Text(text1).size(width: 300, height: 600)
-            Text(text2).size(width: 300, height: 600)
-        }
-        view.frame = CGRect(x: 0, y: 0, width: 300, height: 600)
+    func testTextColor() {
+        let view = UIView(frame: .init(origin: .zero, size: CGSize(width: 200, height: 200)))
+        view.componentEngine.component = Text("Test").textColor(.red)
         view.layoutIfNeeded()
-        let vRenderNode = view.componentEngine.renderNode as? VerticalRenderNode
-        XCTAssertNotNil(vRenderNode)
-        let firstText = vRenderNode!.children[0] as? AnyRenderNodeOfView<UILabel>
-        let secondText = vRenderNode!.children[1] as? AnyRenderNodeOfView<UILabel>
-        XCTAssertNotNil(firstText)
-        XCTAssertNotNil(secondText)
-        XCTAssertEqual(view.componentEngine.visibleRenderables.count, 1)
-        let lazyNode1 = firstText!.erasing as? LazyRenderNode<Text>
-        let lazyNode2 = secondText!.erasing as? LazyRenderNode<Text>
-        XCTAssertEqual(lazyNode1!.didLayout, true)
-        XCTAssertEqual(lazyNode2!.didLayout, false)
-    }
-    /// Test to make sure environment is passed down to lazy layout even when layout is performed later
-    func testLazyLayoutEnvironment() {
-        let view = NSUIView()
-        var text1HostingView: NSUIView?
-        var text2HostingView: NSUIView?
-        view.componentEngine.component = VStack {
-            ConstraintReader { _ in
-                text1HostingView = Environment(\.hostingView).wrappedValue
-                return Text(text1)
-            }.size(width: 300, height: 600)
-            ConstraintReader { _ in
-                text2HostingView = Environment(\.hostingView).wrappedValue
-                return Text(text2)
-            }.size(width: 300, height: 600)
-        }
-        view.bounds = CGRect(x: 0, y: 0, width: 300, height: 600)
+        XCTAssertEqual((view.subviews.first as! UILabel).textColor, .red)
+        view.componentEngine.component = Text("Test").with(\.textColor, .green)
         view.layoutIfNeeded()
-        XCTAssertIdentical(text1HostingView, view)
-        XCTAssertNil(text2HostingView)
-        view.bounds = CGRect(x: 0, y: 10, width: 300, height: 600)
+        XCTAssertEqual((view.subviews.first as! UILabel).textColor, .green)
+        view.componentEngine.component = Text("Test").environment(\.textColor, value: .yellow)
         view.layoutIfNeeded()
-        XCTAssertIdentical(text1HostingView, view)
-        XCTAssertIdentical(text2HostingView, view)
-    }
-    /// Test to make sure weak environment value is correctly release even when captured by a lazy layout
-    func testLazyLayoutWeakEnvironment() {
-        var view: NSUIView? = NSUIView()
-        weak var view2 = view
-        weak var text1HostingView: NSUIView?
-        view?.componentEngine.component = VStack {
-            ConstraintReader { _ in
-                text1HostingView = Environment(\.hostingView).wrappedValue
-                return Text(text1)
-            }.size(width: 300, height: 600)
-            Text(text2).size(width: 300, height: 600)
-        }
-        view?.bounds = CGRect(x: 0, y: 0, width: 300, height: 600)
-        view?.layoutIfNeeded()
-        XCTAssertNotNil(view2)
-        XCTAssertNotNil(text1HostingView)
-        XCTAssertIdentical(text1HostingView, view)
-        view = nil
-        XCTAssertNil(text1HostingView)
-        XCTAssertNil(view2)
-    }
-    func testLazyLayoutPerf() {
-        let rawLayoutTime = measureTime {
-            VStack {
-                for _ in 0..<10000 {
-                    Text(text1)
-                }
-            }
-        }
-        let fixedSizeLayoutTime = measureTime {
-            VStack {
-                for _ in 0..<10000 {
-                    Text(text1).size(width: .fill, height: 50)
-                }
-            }
-        }
-        print("Layout 10000 text with fixed sized used \(fixedSizeLayoutTime)s.")
-        print("Layout 10000 text with dynamic sized used \(rawLayoutTime)s.")
-        XCTAssertLessThan(fixedSizeLayoutTime * 2, rawLayoutTime)
-    }
-    func measureTime(_ component: () -> any Component) -> TimeInterval {
-        let view = NSUIView()
-        let startTime = CACurrentMediaTime()
-        view.componentEngine.component = component()
-        view.frame = CGRect(x: 0, y: 0, width: 300, height: 600)
+        XCTAssertEqual((view.subviews.first as! UILabel).textColor, .yellow)
+        view.componentEngine.component = HStack {
+            Text("Test")
+        }.textColor(.blue)
         view.layoutIfNeeded()
-        return CACurrentMediaTime() - startTime
+        XCTAssertEqual((view.subviews.first as! UILabel).textColor, .blue)
     }
     func testPerfTextLayout() {
         measure {

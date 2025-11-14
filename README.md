@@ -2,9 +2,13 @@
 
 UIComponent is a declarative and modern framework to build user interfaces with UIKit. With the power of `@resultBuilder` and `@dynamicMemberLookup`, your UIKit interface can be easily constructed with a syntax similar to SwiftUI. UIComponent also embraces unidirectional data flow instead of two way binding, and offers great performance and optimization opportunities.
 
+In version 5.0, UIComponent can also easily render SwiftUI View alongside UIViews and other components.
+
 ## Documentation
 
 ### Getting Started
+
+#### The best way to learn the project is to download or clone the repo, then open the `UIComponentExample.xcodeproj` and run it on your mac or an iPad simulator!
 
 - [Installation](https://lkzhao.com/UIComponent/documentation/uicomponent/installation)
 - [Component Basics](https://lkzhao.com/UIComponent/documentation/uicomponent/componentbasics)
@@ -19,7 +23,8 @@ UIComponent is a declarative and modern framework to build user interfaces with 
 - [Internal Architecture](https://lkzhao.com/UIComponent/documentation/uicomponent/architecture)
 - [Compare to SwiftUI](https://lkzhao.com/UIComponent/documentation/uicomponent/swiftuicompare)
 - [Full API Reference](https://lkzhao.com/UIComponent/documentation/uicomponent)
-- [2.0 Migration Guides](https://lkzhao.com/UIComponent/documentation/uicomponent/version2migrationguide)
-- [4.0 Migration Guides](https://lkzhao.com/UIComponent/documentation/uicomponent/version4migrationguide)
+- [2.0 Changes](https://lkzhao.com/UIComponent/documentation/uicomponent/version2migrationguide)
+- [4.0 Changes](https://lkzhao.com/UIComponent/documentation/uicomponent/version4migrationguide)
+- [5.0 Changes](https://lkzhao.com/UIComponent/documentation/uicomponent/version5migrationguide)
 
-> Checkout the [Examples](https://github.com/lkzhao/UIComponent/tree/master/Examples) folder for code examples.
+> Checkout the [UIComponentExample/Chapters](https://github.com/lkzhao/UIComponent/tree/master/UIComponentExample/Chapters) folder for code examples.

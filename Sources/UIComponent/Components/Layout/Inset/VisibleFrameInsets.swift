@@ -71,7 +71,17 @@ public struct VisibleFrameInsetRenderNode<Content: RenderNode>: RenderNodeWrappe
 
     /// The fixed insets to apply to the visible frame of the content.
     public let insets: NSUIEdgeInsets
-    
+
+    /// The ascender of the render node, adjusted for the top inset.
+    public var ascender: CGFloat {
+        content.ascender + insets.top
+    }
+
+    /// The descender of the render node, adjusted for the bottom inset.
+    public var descender: CGFloat {
+        content.descender - insets.bottom
+    }
+
     /// Initializes a new `VisibleFrameInsetRenderNode` with the given content and insets.
     /// - Parameters:
     ///   - content: The content render node to which the insets will be applied.

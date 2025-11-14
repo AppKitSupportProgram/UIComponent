@@ -19,8 +19,6 @@ public protocol ComponentEngineReloadDelegate: AnyObject {
 /// `ComponentEngine` is the main class that powers the rendering of components.
 /// It manages a `NSUIView` and handles rendering the component to the view.
 public final class ComponentEngine {
-    /// A static property to disable animations during view updates.
-    public static var disableUpdateAnimation: Bool = false
 
     /// A static weak reference to a delegate that decides if a component engine should reload.
     public weak static var reloadDelegate: ComponentEngineReloadDelegate?
@@ -306,11 +304,6 @@ public final class ComponentEngine {
                     cell.bounds.size = frame.bounds.size
                     cell.center = frame.center
                     cell.layoutIfNeeded()
-                    if ComponentEngine.disableUpdateAnimation {
-                        renderable.renderNode._updateView(cell)
-                    }
-                }
-                if !ComponentEngine.disableUpdateAnimation {
                     renderable.renderNode._updateView(cell)
                 }
                 animator.insert(hostingView: view, view: cell, frame: frame)
@@ -323,17 +316,16 @@ public final class ComponentEngine {
         visibleRenderables = newVisibleRenderables
         visibleViews = newViews as! [NSUIView]
         lastRenderBounds = bounds
+        cacheEngine.endLoading()
         needsRender = false
         isRendering = false
     }
 
     // MARK: - Data Caching
 
-    private lazy var cachingData: [String: Any] = [:]
-    internal func loadCachingData<T>(id: String, generator: () -> T) -> T {
-        let data = (cachingData[id] as? T) ?? generator()
-        cachingData[id] = data
-        return data
+    internal var cacheEngine = CacheEngine()
+    internal func loadCachingData<T>(id: String, scope: CacheScope, generator: () -> T) -> T {
+        cacheEngine.loadCachingData(id: id, scope: scope, generator: generator)
     }
 
     /// Ensures that the zoom view is centered within the scroll view if it is smaller than the scroll view's bounds.
